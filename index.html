@@ -463,9 +463,20 @@
             color: white;
         }
 
+        .btn-remove {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            color: white;
+        }
+
         .friend-btn:hover, .user-btn:hover, .request-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-remove:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
         }
 
         .section-title {
@@ -585,6 +596,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex: 1;
         }
 
         .invite-avatar {
@@ -598,6 +610,17 @@
             color: white;
             font-weight: bold;
             font-size: 0.9em;
+        }
+
+        .invite-details {
+            flex: 1;
+        }
+
+        .invite-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
 
         .invite-btn {
@@ -622,6 +645,70 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+        }
+
+        .invite-btn-sent {
+            padding: 6px 12px;
+            background: #95a5a6 !important;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .invite-btn-offline {
+            padding: 6px 12px;
+            background: #bdc3c7 !important;
+            color: #7f8c8d;
+            border: none;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .decline-message {
+            font-size: 0.8em;
+            color: #e74c3c;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .invite-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .invite-help {
+            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        /* Улучшенные стили для статусов */
+        .status-online {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .status-ingame {
+            color: #e67e22;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .status-offline {
+            color: #95a5a6;
+            font-size: 0.85em;
         }
 
         .main-menu {
@@ -1186,6 +1273,14 @@
 
             .friend-actions, .user-actions, .request-actions {
                 justify-content: center;
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .friend-btn {
+                width: 100%;
+                margin: 2px 0;
             }
 
             .action-buttons {
@@ -1212,6 +1307,23 @@
 
             .skins-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .invite-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .invite-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .invite-info {
+                flex-direction: column;
+                text-align: center;
             }
         }
 
@@ -1477,15 +1589,28 @@
                     </div>
                     <div id="gameModeInfo" style="margin-top: 10px; font-weight: 600;"></div>
                     
+                    <!-- Кнопка приглашения друзей (только для создателя лобби) -->
+                    <div id="inviteFriendsBtnContainer" class="hidden" style="margin: 15px 0;">
+                        <button id="showInviteFriendsBtn" class="btn btn-success">
+                            👥 Пригласить друзей в лобби
+                        </button>
+                    </div>
+                    
                     <!-- Сетка игроков -->
                     <div id="playersGrid" class="players-grid"></div>
                 </div>
 
                 <!-- Приглашение друзей в лобби -->
                 <div id="inviteFriendsSection" class="invite-friends-section hidden">
-                    <div class="invite-title">👥 Пригласить друзей в лобби</div>
+                    <div class="invite-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="invite-title">👥 Пригласить друзей в лобби</div>
+                        <button id="hideInviteFriendsBtn" class="btn btn-warning" style="padding: 8px 15px;">✕ Скрыть</button>
+                    </div>
                     <div class="invite-friends-list" id="inviteFriendsList">
                         <!-- Список друзей для приглашения -->
+                    </div>
+                    <div class="invite-help" style="text-align: center; margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">
+                        💡 Друзья получат уведомление о приглашении когда появятся онлайн
                     </div>
                 </div>
 
@@ -1613,6 +1738,10 @@
         let currentInvite = null;
         let invitesRef = null;
 
+        // Переменные для отслеживания отправленных приглашений
+        let sentInvitesRef = null;
+        let sentInvites = {};
+
         // Символы для игроков
         const playerSymbols = {
             1: { symbol: 'X', name: 'Крестик', emoji: '❌', class: 'x' },
@@ -1704,24 +1833,58 @@
         function acceptInvite() {
             if (!currentInvite) return;
             
-            // Присоединяемся к лобби
-            joinLobby(currentInvite.gameId);
+            console.log('Принимаем приглашение в лобби:', currentInvite.gameId);
             
-            // Удаляем приглашение
+            // Сохраняем gameId перед удалением приглашения
+            const gameIdToJoin = currentInvite.gameId;
+            const fromUsername = currentInvite.fromUsername;
+            
+            // Сначала удаляем приглашение и скрываем уведомление
             const inviteRef = database.ref('gameInvites/' + currentUser.id + '/' + currentInvite.id);
-            inviteRef.remove();
-            
-            hideInviteNotification();
+            inviteRef.remove().then(() => {
+                console.log('Приглашение удалено, присоединяемся к лобби');
+                hideInviteNotification();
+                
+                // Затем присоединяемся к лобби
+                joinLobby(gameIdToJoin);
+            }).catch(error => {
+                console.error('Ошибка удаления приглашения:', error);
+                hideInviteNotification();
+                joinLobby(gameIdToJoin);
+            });
         }
 
         function declineInvite() {
             if (!currentInvite) return;
             
-            // Просто удаляем приглашение
+            // Обновляем статус приглашения у отправителя
+            const sentInviteRef = database.ref('sentInvites/' + currentInvite.fromUserId);
+            
+            // Находим соответствующее приглашение
+            sentInviteRef.once('value').then(snapshot => {
+                const invites = snapshot.val();
+                if (invites) {
+                    Object.keys(invites).forEach(inviteId => {
+                        const invite = invites[inviteId];
+                        if (invite.toUserId === currentUser.id && invite.gameId === currentInvite.gameId) {
+                            // Обновляем статус на "declined"
+                            sentInviteRef.child(inviteId).update({
+                                status: 'declined',
+                                declinedAt: Date.now()
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Удаляем приглашение у получателя
             const inviteRef = database.ref('gameInvites/' + currentUser.id + '/' + currentInvite.id);
             inviteRef.remove();
             
             hideInviteNotification();
+            
+            // Показываем сообщение
+            alert('Приглашение отклонено');
         }
 
         // ОБРАБОТЧИКИ УВЕДОМЛЕНИЙ
@@ -1864,6 +2027,7 @@
                                 
                                 // Настраиваем слушатель приглашений
                                 setupInviteListener();
+                                setupSentInvitesListener();
                                 return;
                             }
                         });
@@ -1891,6 +2055,9 @@
             // Отключаем слушатель приглашений
             if (invitesRef) {
                 invitesRef.off();
+            }
+            if (sentInvitesRef) {
+                sentInvitesRef.off();
             }
         }
 
@@ -2046,7 +2213,12 @@
                     </div>
                 </div>
                 <div class="friend-actions">
-                    <button class="friend-btn btn-invite" data-friend-id="${friend.id}">Пригласить</button>
+                    <button class="friend-btn btn-invite" data-friend-id="${friend.id}">
+                        🎮 Пригласить
+                    </button>
+                    <button class="friend-btn btn-remove" data-friend-id="${friend.id}" title="Удалить из друзей">
+                        🗑️ Удалить
+                    </button>
                 </div>
             `;
             
@@ -2055,7 +2227,77 @@
                 inviteFriendToLobby(friend.id);
             });
             
+            // Обработчик удаления
+            friendItem.querySelector('.btn-remove').addEventListener('click', function() {
+                removeFriend(friend.id, friend.username);
+            });
+            
             return friendItem;
+        }
+
+        function removeFriend(friendId, friendUsername) {
+            if (!isLoggedIn || !confirm(`Вы уверены, что хотите удалить ${friendUsername} из друзей?`)) {
+                return;
+            }
+            
+            // Удаляем друга у текущего пользователя
+            const userFriendRef = database.ref('friends/' + currentUser.id + '/' + friendId);
+            // Удаляем текущего пользователя у друга
+            const friendUserRef = database.ref('friends/' + friendId + '/' + currentUser.id);
+            
+            Promise.all([
+                userFriendRef.remove(),
+                friendUserRef.remove()
+            ]).then(() => {
+                alert(`${friendUsername} удален из друзей!`);
+                
+                // Обновляем список друзей
+                loadFriends();
+                
+                // Также удаляем все связанные приглашения
+                cleanupFriendInvites(friendId);
+                
+            }).catch(error => {
+                alert('Ошибка при удалении друга: ' + error.message);
+                console.error('Ошибка удаления друга:', error);
+            });
+        }
+
+        function cleanupFriendInvites(friendId) {
+            if (!isLoggedIn) return;
+            
+            // Очищаем отправленные приглашения этому другу
+            const sentInviteRef = database.ref('sentInvites/' + currentUser.id);
+            sentInviteRef.once('value').then(snapshot => {
+                const invites = snapshot.val();
+                if (invites) {
+                    Object.keys(invites).forEach(inviteId => {
+                        const invite = invites[inviteId];
+                        if (invite.toUserId === friendId) {
+                            sentInviteRef.child(inviteId).remove();
+                        }
+                    });
+                }
+            });
+            
+            // Очищаем приглашения от этого друга
+            const receivedInviteRef = database.ref('gameInvites/' + currentUser.id);
+            receivedInviteRef.once('value').then(snapshot => {
+                const invites = snapshot.val();
+                if (invites) {
+                    Object.keys(invites).forEach(inviteId => {
+                        const invite = invites[inviteId];
+                        if (invite.fromUserId === friendId) {
+                            receivedInviteRef.child(inviteId).remove();
+                        }
+                    });
+                }
+            });
+            
+            // Очищаем локальный кэш
+            if (sentInvites[friendId]) {
+                delete sentInvites[friendId];
+            }
         }
 
         function getFriendStatus(friend) {
@@ -2074,15 +2316,45 @@
         }
 
         function getTimeAgo(timestamp) {
-            const timeDiff = Date.now() - timestamp;
-            const minutes = Math.floor(timeDiff / (1000 * 60));
-            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            if (!timestamp) return 'никогда';
             
-            if (days > 0) return `${days} д. назад`;
-            if (hours > 0) return `${hours} ч. назад`;
-            if (minutes > 0) return `${minutes} мин. назад`;
-            return 'Только что';
+            const timeDiff = Date.now() - timestamp;
+            const seconds = Math.floor(timeDiff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 7) {
+                const date = new Date(timestamp);
+                return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+            } else if (days > 0) {
+                return `${days} ${getRussianDays(days)} назад`;
+            } else if (hours > 0) {
+                return `${hours} ${getRussianHours(hours)} назад`;
+            } else if (minutes > 0) {
+                return `${minutes} ${getRussianMinutes(minutes)} назад`;
+            } else {
+                return 'только что';
+            }
+        }
+
+        // Вспомогательные функции для русского языка
+        function getRussianDays(days) {
+            if (days === 1) return 'день';
+            if (days >= 2 && days <= 4) return 'дня';
+            return 'дней';
+        }
+
+        function getRussianHours(hours) {
+            if (hours === 1) return 'час';
+            if (hours >= 2 && hours <= 4) return 'часа';
+            return 'часов';
+        }
+
+        function getRussianMinutes(minutes) {
+            if (minutes === 1) return 'минуту';
+            if (minutes >= 2 && minutes <= 4) return 'минуты';
+            return 'минут';
         }
 
         function renderFriendRequests(requests) {
@@ -2327,13 +2599,13 @@
         }
 
         // ФУНКЦИИ ДЛЯ ПРИГЛАШЕНИЯ ДРУЗЕЙ В ЛОББИ
-        function showInviteFriendsSection() {
+        function showInviteFriendsPanel() {
             const inviteSection = document.getElementById('inviteFriendsSection');
             inviteSection.classList.remove('hidden');
             loadFriendsForInvite();
         }
 
-        function hideInviteFriendsSection() {
+        function hideInviteFriendsPanel() {
             const inviteSection = document.getElementById('inviteFriendsSection');
             inviteSection.classList.add('hidden');
         }
@@ -2380,19 +2652,71 @@
             const inviteItem = document.createElement('div');
             inviteItem.className = 'invite-item';
             
+            // Проверяем статус приглашения
+            const sentInvite = sentInvites[friend.id];
+            const isInviteSent = sentInvite && sentInvite.status === 'pending';
+            const isInviteDeclined = sentInvite && sentInvite.status === 'declined';
+            
+            // Определяем статус онлайн
+            const lastOnline = getTimeAgo(friend.lastOnline);
+            const isOnline = getFriendStatus(friend) === 'online';
+            const isInGame = getFriendStatus(friend) === 'ingame';
+            
+            let statusText = '';
+            let statusClass = '';
+            
+            if (isOnline) {
+                statusText = '🟢 В сети';
+                statusClass = 'status-online';
+            } else if (isInGame) {
+                statusText = '🎮 В игре';
+                statusClass = 'status-ingame';
+            } else {
+                statusText = `⚫ Был(а) ${lastOnline}`;
+                statusClass = 'status-offline';
+            }
+            
+            let buttonText = 'Пригласить';
+            let buttonClass = 'invite-btn';
+            let isDisabled = false;
+            
+            if (isInviteSent) {
+                buttonText = '✓ Отправлено';
+                buttonClass = 'invite-btn-sent';
+                isDisabled = true;
+            } else if (isInviteDeclined) {
+                buttonText = 'Пригласить';
+                buttonClass = 'invite-btn';
+            }
+            
+            // Если друг оффлайн, делаем кнопку неактивной
+            if (!isOnline && !isInGame && !isInviteSent) {
+                buttonText = 'Оффлайн';
+                buttonClass = 'invite-btn-offline';
+                isDisabled = true;
+            }
+            
             inviteItem.innerHTML = `
                 <div class="invite-info">
                     <div class="invite-avatar">${friend.username.charAt(0).toUpperCase()}</div>
-                    <div class="friend-name">${friend.username}</div>
+                    <div class="invite-details">
+                        <div class="friend-name">${friend.username} #${friend.id}</div>
+                        <div class="friend-status ${statusClass}">${statusText}</div>
+                    </div>
                 </div>
-                <button class="invite-btn">
-                    Пригласить
-                </button>
+                <div class="invite-action">
+                    <button class="${buttonClass}" ${isDisabled ? 'disabled' : ''}>
+                        ${buttonText}
+                    </button>
+                    ${isInviteDeclined ? '<div class="decline-message">Игрок отклонил приглашение</div>' : ''}
+                </div>
             `;
             
-            inviteItem.querySelector('.invite-btn').addEventListener('click', function() {
-                inviteFriendToLobby(friend.id);
-            });
+            if (!isDisabled && !isInviteSent) {
+                inviteItem.querySelector('button').addEventListener('click', function() {
+                    inviteFriendToLobby(friend.id);
+                });
+            }
             
             return inviteItem;
         }
@@ -2406,17 +2730,70 @@
                 return;
             }
             
+            // Проверяем, не отправили ли уже приглашение
+            if (sentInvites[friendId]) {
+                alert('Вы уже отправили приглашение этому игроку!');
+                return;
+            }
+            
             // Отправляем приглашение другу
             const inviteRef = database.ref('gameInvites/' + friendId).push();
+            const inviteId = inviteRef.key;
+            
             inviteRef.set({
                 fromUserId: currentUser.id,
                 fromUsername: currentUser.username,
                 gameId: currentGameId,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                status: 'pending' // новый статус
             }).then(() => {
-                alert('Приглашение отправлено! Друг получит уведомление когда появится онлайн.');
+                // Сохраняем информацию о отправленном приглашении
+                const sentInviteRef = database.ref('sentInvites/' + currentUser.id + '/' + inviteId);
+                sentInviteRef.set({
+                    toUserId: friendId,
+                    gameId: currentGameId,
+                    timestamp: Date.now(),
+                    status: 'pending'
+                });
+                
+                // Обновляем локальный кэш
+                sentInvites[friendId] = {
+                    inviteId: inviteId,
+                    status: 'pending',
+                    timestamp: Date.now()
+                };
+                
+                // Обновляем список друзей для приглашения
+                loadFriendsForInvite();
+                
+                alert('Приглашение отправлено!');
             }).catch(error => {
                 alert('Ошибка при отправке приглашения: ' + error.message);
+            });
+        }
+
+        function setupSentInvitesListener() {
+            if (!isLoggedIn || !currentUser) return;
+            
+            sentInvitesRef = database.ref('sentInvites/' + currentUser.id);
+            
+            sentInvitesRef.on('value', (snapshot) => {
+                const invites = snapshot.val();
+                sentInvites = {};
+                
+                if (invites) {
+                    Object.keys(invites).forEach(inviteId => {
+                        const invite = invites[inviteId];
+                        sentInvites[invite.toUserId] = {
+                            inviteId: inviteId,
+                            status: invite.status,
+                            timestamp: invite.timestamp
+                        };
+                    });
+                }
+                
+                // Обновляем UI при изменении статусов
+                loadFriendsForInvite();
             });
         }
 
@@ -2644,6 +3021,10 @@
             leaveLobby();
         };
 
+        // Обработчики для кнопок приглашения друзей
+        document.getElementById('showInviteFriendsBtn').addEventListener('click', showInviteFriendsPanel);
+        document.getElementById('hideInviteFriendsBtn').addEventListener('click', hideInviteFriendsPanel);
+
         // ФУНКЦИЯ БЫСТРОГО ПОДКЛЮЧЕНИЯ
         function quickJoin() {
             console.log('Поиск случайного лобби для быстрого подключения...');
@@ -2791,8 +3172,26 @@
                         
                         database.ref('games/' + currentGameId).update(updates)
                         .then(() => {
+                            console.log('Успешно присоединились к лобби');
+                            
+                            // Принудительно обновляем состояние
+                            currentGameId = lobbyId;
+                            playerSymbol = freeSymbol;
+                            
                             showScreen('gameSection');
                             setupGameListener();
+                            
+                            // Принудительно загружаем актуальные данные игры
+                            setTimeout(() => {
+                                gameRef = database.ref('games/' + currentGameId);
+                                gameRef.once('value').then(snapshot => {
+                                    if (snapshot.exists()) {
+                                        console.log('Обновляем UI с актуальными данными игры');
+                                        updateGameUI(snapshot.val());
+                                    }
+                                });
+                            }, 500);
+                            
                         })
                         .catch(error => {
                             console.error('Ошибка присоединения:', error);
@@ -2956,6 +3355,21 @@
                 modeInfo.style.color = '#27ae60';
             }
             
+            // Управление отображением кнопки приглашения друзей
+            const inviteBtnContainer = document.getElementById('inviteFriendsBtnContainer');
+            const inviteSection = document.getElementById('inviteFriendsSection');
+            
+            // Показываем кнопку только если:
+            // - Режим онлайн
+            // - Игра не началась
+            // - Пользователь - создатель лобби (playerSymbol === 'X')
+            if (gameData.gameMode === 'online' && !gameData.gameStarted && playerSymbol === 'X') {
+                inviteBtnContainer.classList.remove('hidden');
+            } else {
+                inviteBtnContainer.classList.add('hidden');
+                inviteSection.classList.add('hidden'); // Скрываем панель если условия не выполняются
+            }
+            
             // Подсчитываем подключенных игроков
             let connectedPlayers = 0;
             for (let i = 1; i <= gameData.playersCount; i++) {
@@ -2963,15 +3377,6 @@
                 if (gameData[`player${symbol}`]) {
                     connectedPlayers++;
                 }
-            }
-            
-            // Управление отображением секции приглашения друзей
-            if (gameData.gameStarted) {
-                // Игра началась - скрываем секцию приглашения
-                hideInviteFriendsSection();
-            } else {
-                // Игра еще не началась - показываем секцию приглашения
-                showInviteFriendsSection();
             }
             
             if (!gameData.gameStarted) {
@@ -3425,6 +3830,12 @@
             isMyTurn = false;
             currentGameData = null;
             
+            // Очищаем отправленные приглашения
+            sentInvites = {};
+            
+            // Скрываем панель приглашений
+            hideInviteFriendsPanel();
+            
             showScreen('mainMenu');
             document.getElementById('status').textContent = '⏳ Ожидание игроков...';
             
@@ -3443,9 +3854,6 @@
             
             // Убираем класс активности игры при возврате в меню
             document.querySelector('.game-container').classList.remove('game-section-active');
-            
-            // Скрываем секцию приглашения друзей при выходе из лобби
-            hideInviteFriendsSection();
         }
 
         function generateGameId() {
@@ -3631,6 +4039,7 @@
                 loadFriends();
                 loadSkins();
                 setupInviteListener();
+                setupSentInvitesListener();
             }
         };
     </script>
