@@ -730,7 +730,7 @@
                     e.preventDefault();
                     updateJoystick(e);
                 }
-            });
+           }, { passive: false });
 
             document.addEventListener('touchend', (e) => {
                 if (isJoystickActive) {
@@ -781,7 +781,7 @@
             shootButton.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 mobileControls.shooting = true;
-            });
+            }, { passive: false });
 
             shootButton.addEventListener('touchend', (e) => {
                 e.preventDefault();
@@ -1652,4 +1652,3 @@
     </script>
 </body>
 </html>
-
