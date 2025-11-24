@@ -704,8 +704,9 @@
                 console.log("Map update time reached, updating map...");
                 updateMap();
             } else {
-                const minutes = Math.floor(mapUpdateTimer / 60000);
-                const seconds = Math.floor((mapUpdateTimer % 60000) / 1000);
+                const totalSeconds = Math.floor(mapUpdateTimer / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
                 mapTimerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             }
         }
@@ -857,19 +858,20 @@
 
         function drawHPBar(p) {
             if (!p || p.hp === undefined) return;
-            
+    
             const hpPercent = Math.max(0, (p.hp / MAX_HP) * 100);
             const hpColor = hpPercent > 50 ? '#4CAF50' : 
-                           hpPercent > 25 ? '#FF9800' : '#F44336';
-            
+                            hpPercent > 25 ? '#FF9800' : '#F44336';
+    
             ctx.save();
-            ctx.translate(p.x, p.y - 35);
+            ctx.translate(Math.floor(p.x), Math.floor(p.y - 35));
             
             ctx.fillStyle = '#333';
             ctx.fillRect(-20, -3, 40, 6);
-            
+    
             ctx.fillStyle = hpColor;
-            ctx.fillRect(-20, -3, (40 * hpPercent) / 100, 6);
+            const hpWidth = Math.max(0, Math.floor((40 * hpPercent) / 100));
+            ctx.fillRect(-20, -3, hpWidth, 6);
             
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 1;
@@ -1546,7 +1548,13 @@
                 lastUpdate: Date.now()
             };
             
-            database.ref('players/' + playerId).set(player);
+            database.ref('players/' + playerId).set(player, (error) => {
+                if (error) {
+                    console.error("Error saving player:", error);
+                } else {
+                    console.log("Player saved successfully");
+                }
+            });
             
             loginScreen.style.display = 'none';
             
@@ -1644,3 +1652,4 @@
     </script>
 </body>
 </html>
+
