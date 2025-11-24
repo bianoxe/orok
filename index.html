@@ -713,32 +713,59 @@
 
         function initializeMobileControls() {
             let isJoystickActive = false;
+            let isShootingActive = false;
             const joystickBase = moveJoystick.querySelector('.joystick-base');
             const baseRect = joystickBase.getBoundingClientRect();
             const baseCenterX = baseRect.left + baseRect.width / 2;
             const baseCenterY = baseRect.top + baseRect.height / 2;
             const maxDistance = baseRect.width / 3;
 
+            // Для джойстика
             moveJoystick.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 isJoystickActive = true;
                 updateJoystick(e);
-            });
+            }, { passive: false });
 
             document.addEventListener('touchmove', (e) => {
                 if (isJoystickActive) {
                     e.preventDefault();
                     updateJoystick(e);
                 }
-           }, { passive: false });
+            }, { passive: false });
 
             document.addEventListener('touchend', (e) => {
-                if (isJoystickActive) {
-                    e.preventDefault();
-                    resetJoystick();
-                    isJoystickActive = false;
+                // ПРОСТОЕ РЕШЕНИЕ - проверяем все завершенные касания
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    const touch = e.changedTouches[i];
+                    const shootButtonRect = shootButton.getBoundingClientRect();
+                    const isTouchOnShootButton = (
+                        touch.clientX >= shootButtonRect.left &&
+                        touch.clientX <= shootButtonRect.right &&
+                        touch.clientY >= shootButtonRect.top &&
+                        touch.clientY <= shootButtonRect.bottom
+                    );
+                    
+                    // Если это НЕ касание кнопки стрельбы - сбрасываем джойстик
+                    if (!isTouchOnShootButton) {
+                        resetJoystick();
+                        isJoystickActive = false;
+                    }
                 }
             });
+
+            // Для кнопки стрельбы
+            shootButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isShootingActive = true;
+                mobileControls.shooting = true;
+            }, { passive: false });
+
+            shootButton.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                isShootingActive = false;
+                mobileControls.shooting = false;
+            }, { passive: false });
 
             function updateJoystick(e) {
                 const touch = e.touches[0];
@@ -777,16 +804,6 @@
                 mobileControls.moveX = 0;
                 mobileControls.moveY = 0;
             }
-
-            shootButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                mobileControls.shooting = true;
-            }, { passive: false });
-
-            shootButton.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                mobileControls.shooting = false;
-            });
         }
 
         function initializePCMobileJoystick() {
@@ -1554,7 +1571,7 @@
                 } else {
                     console.log("Player saved successfully");
                 }
-            });
+                });
             
             loginScreen.style.display = 'none';
             
