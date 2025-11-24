@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>2D Танчики - Мультиплеер</title>
     <style>
-        /* Стили для полноэкранного режима на мобильных */
         body {
             margin: 0;
             padding: 0;
@@ -17,14 +16,12 @@
             font-family: Arial, sans-serif;
             overflow: hidden;
             touch-action: none;
-            /* Предотвращаем выделение текста на мобильных */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -khtml-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            /* Предотвращаем масштабирование */
             -webkit-text-size-adjust: none;
             text-size-adjust: none;
         }
@@ -44,7 +41,6 @@
             height: 100%;
         }
         
-        /* Убираем старый UI и оставляем только таймер карты */
         #map-timer-ui {
             position: absolute;
             top: 10px;
@@ -57,7 +53,6 @@
             z-index: 10;
         }
         
-        /* Убираем инструкции для ПК */
         #instructions {
             display: none;
         }
@@ -110,7 +105,6 @@
             z-index: 100;
         }
 
-        /* Стили для мобильного управления */
         #mobile-controls {
             position: absolute;
             bottom: 80px;
@@ -176,7 +170,6 @@
             background-color: rgba(255, 50, 50, 0.9);
         }
 
-        /* Джойстик для ПК (как на телефоне) */
         #pc-mobile-joystick {
             position: absolute;
             bottom: 20px;
@@ -214,7 +207,6 @@
             transition: transform 0.1s;
         }
 
-        /* ХП бар над игроком */
         .hp-bar {
             position: absolute;
             width: 40px;
@@ -232,14 +224,12 @@
             border-radius: 2px;
         }
 
-        /* Адаптивность для мобильных устройств */
         @media (max-width: 800px), (max-height: 700px) {
             body {
                 align-items: flex-start;
                 padding: 0;
                 height: 100vh;
                 overflow: hidden;
-                /* Для полноэкранного режима на мобильных */
                 position: fixed;
                 width: 100%;
                 height: 100%;
@@ -316,7 +306,6 @@
             }
         }
 
-        /* Для очень маленьких экранов */
         @media (max-height: 600px) {
             #mobile-controls {
                 bottom: 60px;
@@ -357,10 +346,8 @@
             }
         }
 
-        /* Скрываем адресную строку на мобильных */
         @media (max-width: 800px) {
             body {
-                /* Для iOS Safari */
                 height: -webkit-fill-available;
             }
             
@@ -374,19 +361,16 @@
     <div id="game-container">
         <canvas id="game-canvas" width="800" height="600"></canvas>
         
-        <!-- Новый упрощенный UI - только таймер карты -->
         <div id="map-timer-ui">
             Следующее обновление карты: <span id="map-timer">4:00</span>
         </div>
         
-        <!-- Убраны инструкции для ПК -->
         <div id="instructions" style="display: none;">
             Управление: WASD/Стрелки - движение, Пробел - выстрел
         </div>
         
         <div class="player-list" id="player-list"></div>
         
-        <!-- Мобильное управление -->
         <div id="mobile-controls">
             <div class="joystick-container" id="move-joystick">
                 <div class="joystick-base"></div>
@@ -397,7 +381,6 @@
             </div>
         </div>
 
-        <!-- Джойстик для ПК (как на телефоне) -->
         <div id="pc-mobile-joystick">
             <div class="pc-mobile-joystick-container" id="pc-mobile-joystick-container">
                 <div class="pc-mobile-joystick-base"></div>
@@ -422,12 +405,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <script>
-        // Глобальные переменные Firebase
         const FIREBASE_CONFIG = {
             apiKey: "AIzaSyDy85tU19HazMv8iY8MVqtbwzDvoyklFVY",
             authDomain: "ggff-a00c0.firebaseapp.com",
@@ -438,16 +419,14 @@
             appId: "1:470803077698:web:05ebb08c0a444df3176bdb"
         };
 
-        // Глобальные игровые константы
         const MAP_WIDTH = 40;
         const MAP_HEIGHT = 40;
         const TILE_SIZE = 40;
         const MAX_HP = 7;
-        const MAP_UPDATE_INTERVAL = 4 * 60 * 1000; // 4 минуты
-        const INACTIVE_TIMEOUT = 10000; // 10 секунд для неактивных игроков
-        const PLAYER_SAFE_ZONE = 5; // 5 тайлов безопасной зоны вокруг игрока
+        const MAP_UPDATE_INTERVAL = 4 * 60 * 1000;
+        const INACTIVE_TIMEOUT = 10000;
+        const PLAYER_SAFE_ZONE = 5;
         
-        // Точки спавна
         const SPAWN_POINTS = [
             { x: 2, y: 2 },
             { x: MAP_WIDTH - 3, y: 2 },
@@ -457,7 +436,6 @@
             { x: Math.floor(MAP_WIDTH / 2), y: MAP_HEIGHT - 3 }
         ];
 
-        // Глобальные игровые переменные
         let firebaseApp;
         let database;
         let canvas;
@@ -487,9 +465,7 @@
         let bulletsListener;
         let mapListener;
         let cleanupInterval;
-        let hpListener;
 
-        // Получаем элементы DOM
         const mapTimerElement = document.getElementById('map-timer');
         const playerListElement = document.getElementById('player-list');
         const loginScreen = document.getElementById('login-screen');
@@ -505,31 +481,23 @@
         const pcMobileJoystickContainer = document.getElementById('pc-mobile-joystick-container');
         const pcMobileJoystickHandle = pcMobileJoystickContainer.querySelector('.pc-mobile-joystick-handle');
 
-        // Клавиши для ПК управления (русская и английская раскладка)
         const keys = {
-            // Английская
             'w': false, 'a': false, 's': false, 'd': false,
             ' ': false,
-            // Русская
             'ц': false, 'ф': false, 'ы': false, 'в': false,
-            // Стрелки
             'arrowup': false, 'arrowleft': false, 'arrowdown': false, 'arrowright': false
         };
 
-        // Проверка мобильного устройства
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        // Автоматический выбор управления для мобильных
         if (isMobileDevice()) {
             controlTypeSelect.value = 'mobile';
         }
 
-        // Инициализация Firebase
         function initializeFirebase() {
             try {
-                // Пытаемся удалить предыдущее приложение если существует
                 if (firebaseApp) {
                     firebaseApp.delete();
                 }
@@ -542,13 +510,11 @@
             console.log("Firebase initialized");
         }
 
-        // Генерация детерминированной карты с безопасной зоной вокруг игроков
         function generateDeterministicMap() {
             console.log("Generating deterministic map with safe zones...");
             const seed = Math.floor(Math.random() * 10000);
             let generatedMap = [];
             
-            // Сначала создаем базовую карту
             for (let x = 0; x < MAP_WIDTH; x++) {
                 generatedMap[x] = [];
                 for (let y = 0; y < MAP_HEIGHT; y++) {
@@ -575,14 +541,12 @@
                 }
             }
             
-            // Создаем безопасные зоны вокруг игроков
             for (const id in players) {
                 const playerData = players[id];
                 if (playerData && playerData.x && playerData.y) {
                     const playerTileX = Math.floor(playerData.x / TILE_SIZE);
                     const playerTileY = Math.floor(playerData.y / TILE_SIZE);
                     
-                    // Очищаем зону 5x5 тайлов вокруг игрока
                     for (let dx = -PLAYER_SAFE_ZONE; dx <= PLAYER_SAFE_ZONE; dx++) {
                         for (let dy = -PLAYER_SAFE_ZONE; dy <= PLAYER_SAFE_ZONE; dy++) {
                             const safeX = playerTileX + dx;
@@ -590,7 +554,6 @@
                             
                             if (safeX >= 1 && safeX < MAP_WIDTH - 1 && 
                                 safeY >= 1 && safeY < MAP_HEIGHT - 1) {
-                                // Оставляем только песок в безопасной зоне
                                 generatedMap[safeX][safeY] = 'sand';
                             }
                         }
@@ -601,19 +564,16 @@
             return generatedMap;
         }
 
-        // Получить случайную позицию на песке для респавна
         function getRandomSandPosition() {
             const sandPositions = [];
             
             for (let x = 1; x < MAP_WIDTH - 1; x++) {
                 for (let y = 1; y < MAP_HEIGHT - 1; y++) {
                     if (map[x] && map[x][y] === 'sand') {
-                        // Проверяем, что это не точка спавна
                         const isSpawnPoint = SPAWN_POINTS.some(point => 
                             Math.abs(point.x - x) <= 1 && Math.abs(point.y - y) <= 1
                         );
                         
-                        // Проверяем, что вокруг достаточно места для танка
                         let hasEnoughSpace = true;
                         for (let dx = -1; dx <= 1; dx++) {
                             for (let dy = -1; dy <= 1; dy++) {
@@ -644,12 +604,10 @@
                 };
             }
             
-            // Если нет подходящих позиций на песке, используем точку спавна
             console.log("No suitable sand positions found, using spawn point");
             return getRandomSpawnPoint();
         }
 
-        // Инициализация единой карты в Firebase
         async function initializeMapInFirebase() {
             loadingElement.style.display = 'block';
             
@@ -708,20 +666,16 @@
             });
         }
 
-        // Запуск таймера обновления карты
         function startMapUpdateTimer() {
-            // Очищаем предыдущий интервал если есть
             if (mapUpdateInterval) {
                 clearInterval(mapUpdateInterval);
             }
             
-            // Запускаем новый интервал
             mapUpdateInterval = setInterval(() => {
                 updateMapTimer();
-            }, 1000); // Обновляем каждую секунду
+            }, 1000);
         }
 
-        // Обновление карты
         function updateMap() {
             console.log("Updating map with safe zones...");
             const newMap = generateDeterministicMap();
@@ -734,17 +688,13 @@
                 lastMapUpdateTime = Date.now();
                 mapUpdateTimer = MAP_UPDATE_INTERVAL;
                 console.log("Map updated successfully with safe zones");
-                
-                // Перезапускаем таймер
                 startMapUpdateTimer();
             }).catch((error) => {
                 console.error("Error updating map:", error);
-                // В случае ошибки все равно перезапускаем таймер
                 startMapUpdateTimer();
             });
         }
 
-        // Таймер обновления карты
         function updateMapTimer() {
             const now = Date.now();
             const timeSinceLastUpdate = now - lastMapUpdateTime;
@@ -760,7 +710,6 @@
             }
         }
 
-        // Инициализация мобильного управления
         function initializeMobileControls() {
             let isJoystickActive = false;
             const joystickBase = moveJoystick.querySelector('.joystick-base');
@@ -808,7 +757,6 @@
 
                 joystickHandle.style.transform = `translate(${handleX}px, ${handleY}px)`;
 
-                // Нормализуем вектор для одинаковой скорости во всех направлениях
                 const magnitude = Math.sqrt(handleX * handleX + handleY * handleY);
                 if (magnitude > 0) {
                     mobileControls.moveX = limitedDistance > 10 ? (handleX / magnitude) : 0;
@@ -840,7 +788,6 @@
             });
         }
 
-        // Инициализация джойстика для ПК (как на телефоне)
         function initializePCMobileJoystick() {
             let isJoystickActive = false;
             const joystickBase = pcMobileJoystickContainer.querySelector('.pc-mobile-joystick-base');
@@ -887,7 +834,6 @@
 
                 pcMobileJoystickHandle.style.transform = `translate(${handleX}px, ${handleY}px)`;
 
-                // Нормализуем вектор для одинаковой скорости во всех направлениях
                 const magnitude = Math.sqrt(handleX * handleX + handleY * handleY);
                 if (magnitude > 0) {
                     mobileControls.moveX = limitedDistance > 10 ? (handleX / magnitude) : 0;
@@ -909,7 +855,6 @@
             }
         }
 
-        // Отрисовка ХП бара
         function drawHPBar(p) {
             if (!p || p.hp === undefined) return;
             
@@ -920,15 +865,12 @@
             ctx.save();
             ctx.translate(p.x, p.y - 35);
             
-            // Фон HP бара
             ctx.fillStyle = '#333';
             ctx.fillRect(-20, -3, 40, 6);
             
-            // Заполнение HP бара
             ctx.fillStyle = hpColor;
             ctx.fillRect(-20, -3, (40 * hpPercent) / 100, 6);
             
-            // Рамка HP бара
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 1;
             ctx.strokeRect(-20, -3, 40, 6);
@@ -936,17 +878,15 @@
             ctx.restore();
         }
 
-        // Отрисовка карты и игроков - ИСПРАВЛЕННАЯ ВЕРСИЯ
         function drawMap() {
             if (!player || !mapLoaded) return;
             
-            // Отключаем сглаживание для четких границ
             ctx.imageSmoothingEnabled = false;
             
             for (let x = 0; x < MAP_WIDTH; x++) {
                 for (let y = 0; y < MAP_HEIGHT; y++) {
-                    const tileX = Math.floor(x * TILE_SIZE); // Округляем вниз
-                    const tileY = Math.floor(y * TILE_SIZE); // Округляем вниз
+                    const tileX = Math.floor(x * TILE_SIZE);
+                    const tileY = Math.floor(y * TILE_SIZE);
                     
                     if (tileX > player.x - canvas.width/2 - TILE_SIZE && 
                         tileX < player.x + canvas.width/2 + TILE_SIZE &&
@@ -955,7 +895,6 @@
                         
                         if (map[x] && map[x][y] === 'sand') {
                             ctx.fillStyle = '#FFD700';
-                            // Рисуем с целыми координатами и +1 пиксель для перекрытия пробелов
                             ctx.fillRect(tileX, tileY, TILE_SIZE + 1, TILE_SIZE + 1);
                             
                             ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
@@ -978,7 +917,6 @@
 
         function drawCactus(x, y) {
             ctx.fillStyle = '#2E8B57';
-            // Округляем координаты для четких границ
             ctx.fillRect(Math.floor(x + 15), Math.floor(y + 5), 10, 30);
             ctx.fillRect(Math.floor(x + 5), Math.floor(y + 10), 10, 8);
             ctx.fillRect(Math.floor(x + 25), Math.floor(y + 15), 10, 8);
@@ -1007,7 +945,6 @@
 
         function drawWall(x, y) {
             ctx.fillStyle = '#666';
-            // Округляем координаты для четких границ
             ctx.fillRect(Math.floor(x), Math.floor(y), TILE_SIZE + 1, TILE_SIZE + 1);
             
             ctx.fillStyle = '#555';
@@ -1018,7 +955,6 @@
             }
         }
         
-        // Отрисовка игрока (без мигания)
         function drawPlayer(p, isCurrentPlayer = false) {
             if (!p || !p.x || !p.y || p.hp <= 0) return;
             
@@ -1141,7 +1077,6 @@
         }
         
         function updateBullets() {
-            // Локальные снаряды
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const bullet = bullets[i];
                 if (!bullet.x || !bullet.y) {
@@ -1168,7 +1103,6 @@
                     }
                 }
                 
-                // Проверка попадания в игроков - ИСПРАВЛЕННАЯ ВЕРСИЯ
                 let hitPlayer = false;
                 for (const id in players) {
                     const targetPlayer = players[id];
@@ -1181,21 +1115,24 @@
                     if (distance < 20) {
                         console.log(`Bullet hit player ${id}, current HP: ${targetPlayer.hp}`);
                         
-                        // ТОЛЬКО ОБНОВЛЯЕМ В FIREBASE, не меняем локально
+                        // ВАЖНОЕ ИСПРАВЛЕНИЕ: обновляем локально И отправляем в Firebase
                         const newHp = Math.max(0, targetPlayer.hp - 1);
+                        targetPlayer.hp = newHp;
                         
                         database.ref('players/' + id).update({
                             hp: newHp
                         });
                         
-                        // Если игрок умер, респавним его
                         if (newHp <= 0) {
                             console.log(`Player ${id} died, respawning immediately...`);
                             const respawnPos = getRandomSandPosition();
+                            targetPlayer.x = respawnPos.x;
+                            targetPlayer.y = respawnPos.y;
+                            targetPlayer.hp = MAX_HP;
                             
                             database.ref('players/' + id).update({
-                                x: respawnPos.x,
-                                y: respawnPos.y,
+                                x: targetPlayer.x,
+                                y: targetPlayer.y,
                                 hp: MAX_HP
                             });
                         }
@@ -1216,7 +1153,6 @@
                 }
             }
             
-            // Удаленные снаряды
             for (let i = remoteBullets.length - 1; i >= 0; i--) {
                 const bullet = remoteBullets[i];
                 if (!bullet.x || !bullet.y) {
@@ -1243,7 +1179,6 @@
                     }
                 }
                 
-                // Проверка попадания в текущего игрока - ИСПРАВЛЕННАЯ ВЕРСИЯ
                 if (player && player.hp > 0 && bullet.playerId !== playerId) {
                     const dx = bullet.x - player.x;
                     const dy = bullet.y - player.y;
@@ -1252,21 +1187,24 @@
                     if (distance < 20) {
                         console.log(`Remote bullet hit current player, current HP: ${player.hp}`);
                         
-                        // ТОЛЬКО ОБНОВЛЯЕМ В FIREBASE, не меняем локально
+                        // ВАЖНОЕ ИСПРАВЛЕНИЕ: обновляем локально И отправляем в Firebase
                         const newHp = Math.max(0, player.hp - 1);
+                        player.hp = newHp;
                         
                         database.ref('players/' + playerId).update({
                             hp: newHp
                         });
                         
-                        // Если игрок умер, респавним его
                         if (newHp <= 0) {
                             console.log("Current player died, respawning immediately...");
                             const respawnPos = getRandomSandPosition();
+                            player.x = respawnPos.x;
+                            player.y = respawnPos.y;
+                            player.hp = MAX_HP;
                             
                             database.ref('players/' + playerId).update({
-                                x: respawnPos.x,
-                                y: respawnPos.y,
+                                x: player.x,
+                                y: player.y,
                                 hp: MAX_HP
                             });
                         }
@@ -1299,7 +1237,6 @@
             const speed = player.speed || 3;
 
             if (controlType === 'pc') {
-                // Клавиатурное управление
                 let moveX = 0;
                 let moveY = 0;
                 
@@ -1316,7 +1253,6 @@
                     moveX += 1;
                 }
                 
-                // Нормализуем вектор для одинаковой скорости во всех направлениях
                 const magnitude = Math.sqrt(moveX * moveX + moveY * moveY);
                 if (magnitude > 0) {
                     moveX /= magnitude;
@@ -1326,12 +1262,10 @@
                 newX += moveX * speed;
                 newY += moveY * speed;
                 
-                // Обновляем направление только если двигаемся
                 if (moveX !== 0 || moveY !== 0) {
                     player.direction = Math.atan2(moveY, moveX) * 180 / Math.PI;
                 }
                 
-                // Выстрел
                 if (keys[' ']) {
                     const now = Date.now();
                     if (now - lastShotTime > SHOT_COOLDOWN) {
@@ -1340,12 +1274,10 @@
                     }
                 }
             } else if (controlType === 'pc-mobile-joystick' || controlType === 'mobile') {
-                // Джойстик управление (уже нормализовано в инициализации)
                 const moveSpeed = speed;
                 newX += mobileControls.moveX * moveSpeed;
                 newY += mobileControls.moveY * moveSpeed;
                 
-                // Для pc-mobile-joystick используем клавиши для стрельбы
                 if (controlType === 'pc-mobile-joystick') {
                     if (keys[' ']) {
                         const now = Date.now();
@@ -1368,7 +1300,6 @@
                 smartMovement(newX, newY);
             }
             
-            // ВСЕГДА обновляем позицию игрока, даже если он не двигается
             updatePlayerPosition();
         }
         
@@ -1425,7 +1356,6 @@
         }
         
         function setupPlayersListener() {
-            // Удаляем предыдущий слушатель если есть
             if (playersListener) {
                 database.ref('players').off('value', playersListener);
             }
@@ -1435,6 +1365,7 @@
                 players = {};
                 
                 for (const id in playersData) {
+                    // ВАЖНОЕ ИСПРАВЛЕНИЕ: обновляем ВСЕХ игроков из Firebase
                     players[id] = {
                         ...playersData[id],
                         width: 30,
@@ -1442,31 +1373,20 @@
                         speed: 3,
                         hp: playersData[id].hp !== undefined ? playersData[id].hp : MAX_HP
                     };
+                    
+                    // Синхронизируем только текущего игрока
+                    if (id === playerId && player) {
+                        if (players[id].hp !== undefined && players[id].hp !== player.hp) {
+                            player.hp = players[id].hp;
+                        }
+                    }
                 }
                 
                 updatePlayerList();
             });
         }
         
-        function setupHpListener() {
-            // Удаляем предыдущий слушатель если есть
-            if (hpListener) {
-                database.ref('players/' + playerId + '/hp').off('value', hpListener);
-            }
-            
-            hpListener = database.ref('players/' + playerId + '/hp').on('value', (snapshot) => {
-                if (snapshot.exists() && player) {
-                    const newHp = snapshot.val();
-                    if (newHp !== null && newHp !== undefined) {
-                        player.hp = newHp;
-                        console.log(`HP updated from Firebase: ${player.hp}`);
-                    }
-                }
-            });
-        }
-        
         function setupBulletsListener() {
-            // Удаляем предыдущий слушатель если есть
             if (bulletsListener) {
                 database.ref('bullets').off('child_added', bulletsListener);
             }
@@ -1491,7 +1411,6 @@
         }
         
         function setupMapListener() {
-            // Удаляем предыдущий слушатель если есть
             if (mapListener) {
                 database.ref('map/data').off('value', mapListener);
             }
@@ -1529,7 +1448,6 @@
         }
         
         function cleanupInactivePlayers() {
-            // Очищаем предыдущий интервал если есть
             if (cleanupInterval) {
                 clearInterval(cleanupInterval);
             }
@@ -1539,17 +1457,15 @@
                 database.ref('players').once('value', (snapshot) => {
                     const players = snapshot.val() || {};
                     for (const id in players) {
-                        // Удаляем игроков, которые не обновлялись более 10 секунд
                         if (now - (players[id].lastUpdate || 0) > INACTIVE_TIMEOUT) {
                             console.log(`Removing inactive player: ${id}`);
                             database.ref('players/' + id).remove();
                         }
                     }
                 });
-            }, 5000); // Проверяем каждые 5 секунд
+            }, 5000);
         }
         
-        // Сохранить позицию игрока перед выходом
         function savePlayerPosition() {
             if (!player || !playerId) return;
             
@@ -1565,7 +1481,6 @@
                 lastUpdate: Date.now()
             };
             
-            // Сохраняем позицию в localStorage
             localStorage.setItem('lastPlayerPosition', JSON.stringify({
                 x: player.x,
                 y: player.y,
@@ -1574,14 +1489,12 @@
                 name: playerName
             }));
             
-            // Обновляем в Firebase с HP = 0 (умер)
             database.ref('players/' + playerId).update({
                 ...playerData,
-                hp: 0 // Помечаем как мертвого при выходе
+                hp: 0
             });
         }
         
-        // Получить сохраненную позицию игрока
         function getSavedPlayerPosition() {
             const saved = localStorage.getItem('lastPlayerPosition');
             if (saved) {
@@ -1594,7 +1507,6 @@
             return null;
         }
         
-        // Выход из игры (только при закрытии вкладки/браузера)
         window.addEventListener('beforeunload', () => {
             if (playerId) {
                 savePlayerPosition();
@@ -1612,19 +1524,16 @@
             controlType = controlTypeSelect.value;
             playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             
-            // Пытаемся получить сохраненную позицию
             const savedPosition = getSavedPlayerPosition();
             let spawnPoint;
             
             if (savedPosition && savedPosition.name === playerName) {
-                // Используем сохраненную позицию
                 spawnPoint = {
                     x: savedPosition.x,
                     y: savedPosition.y
                 };
                 console.log("Respawning at saved position:", spawnPoint);
             } else {
-                // Новая игра - случайная точка спавна
                 spawnPoint = getRandomSpawnPoint();
                 console.log("New game - random spawn point:", spawnPoint);
             }
@@ -1645,20 +1554,8 @@
             
             database.ref('players/' + playerId).set(player);
             
-            // Синхронизируем HP из Firebase после создания игрока
-            database.ref('players/' + playerId + '/hp').once('value').then((snapshot) => {
-                if (snapshot.exists() && player) {
-                    const firebaseHp = snapshot.val();
-                    if (firebaseHp !== null && firebaseHp !== undefined) {
-                        player.hp = firebaseHp;
-                        console.log(`HP synchronized from Firebase: ${player.hp}`);
-                    }
-                }
-            });
-            
             loginScreen.style.display = 'none';
             
-            // Настройка управления
             mobileControlsElement.style.display = 'none';
             pcMobileJoystickElement.style.display = 'none';
             
@@ -1671,7 +1568,6 @@
             }
             
             setupPlayersListener();
-            setupHpListener();
             setupBulletsListener();
             setupMapListener();
             cleanupInactivePlayers();
