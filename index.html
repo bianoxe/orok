@@ -224,6 +224,138 @@
             border-radius: 2px;
         }
 
+        /* Стили для кнопки настроек */
+        #settings-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 14px;
+            display: none;
+        }
+
+        #settings-button:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Стили для окна настроек */
+        #settings-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+        }
+
+        .settings-section {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: 300px;
+        }
+
+        .settings-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        .settings-option {
+            margin: 10px 0;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        .settings-option label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .settings-option select {
+            width: 100%;
+            padding: 5px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+
+        #close-settings {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #close-settings:hover {
+            background-color: #45a049;
+        }
+
+        /* Стили для кнопок на экране */
+        #mobile-buttons-controls {
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            display: none;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .movement-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .movement-button {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            user-select: none;
+            touch-action: none;
+        }
+
+        .movement-button:active {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        #up-button { grid-column: 2; grid-row: 1; }
+        #left-button { grid-column: 1; grid-row: 2; }
+        #down-button { grid-column: 2; grid-row: 3; }
+        #right-button { grid-column: 3; grid-row: 2; }
+
         @media (max-width: 800px), (max-height: 700px) {
             body {
                 align-items: flex-start;
@@ -304,6 +436,21 @@
                 top: 25px;
                 left: 25px;
             }
+
+            .settings-section {
+                width: 90%;
+                max-width: 300px;
+            }
+
+            #mobile-buttons-controls {
+                bottom: 100px;
+            }
+            
+            .movement-button {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+            }
         }
 
         @media (max-height: 600px) {
@@ -344,6 +491,16 @@
                 top: 20px;
                 left: 20px;
             }
+
+            #mobile-buttons-controls {
+                bottom: 60px;
+            }
+            
+            .movement-button {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
         }
 
         @media (max-width: 800px) {
@@ -371,6 +528,8 @@
         
         <div class="player-list" id="player-list"></div>
         
+        <button id="settings-button">⚙️ Настройки</button>
+        
         <div id="mobile-controls">
             <div class="joystick-container" id="move-joystick">
                 <div class="joystick-base"></div>
@@ -378,6 +537,18 @@
             </div>
             <div class="action-buttons">
                 <div class="action-button" id="shoot-button">СТРЕЛЯТЬ</div>
+            </div>
+        </div>
+
+        <div id="mobile-buttons-controls">
+            <div class="movement-buttons">
+                <div class="movement-button" id="up-button">↑</div>
+                <div class="movement-button" id="left-button">←</div>
+                <div class="movement-button" id="down-button">↓</div>
+                <div class="movement-button" id="right-button">→</div>
+            </div>
+            <div class="action-buttons">
+                <div class="action-button" id="shoot-button-buttons">СТРЕЛЯТЬ</div>
             </div>
         </div>
 
@@ -392,12 +563,66 @@
         <div id="login-screen">
             <h2>2D Танчики - Мультиплеер</h2>
             <input type="text" id="player-name" placeholder="Введите ваше имя (необязательно)" maxlength="15">
-            <select id="control-type">
-                <option value="pc">Управление: ПК (Клавиатура)</option>
-                <option value="pc-mobile-joystick">Управление: ПК (Джойстик как на телефоне)</option>
-                <option value="mobile">Управление: Телефон (Джойстик)</option>
+            <select id="device-type">
+                <option value="pc">Устройство: ПК</option>
+                <option value="mobile">Устройство: Телефон</option>
             </select>
+            <button id="settings-btn">Настройки управления</button>
             <button id="join-game">Присоединиться к игре</button>
+        </div>
+
+        <!-- Окно настроек -->
+        <div id="settings-screen">
+            <h2>Настройки управления</h2>
+            
+            <div class="settings-section">
+                <h3>Устройство</h3>
+                <div class="settings-option">
+                    <label>Тип устройства:</label>
+                    <select id="settings-device-type">
+                        <option value="pc">ПК</option>
+                        <option value="mobile">Телефон</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section" id="pc-controls-section">
+                <h3>Управление на ПК</h3>
+                <div class="settings-option">
+                    <label>Раскладка управления:</label>
+                    <select id="pc-control-layout">
+                        <option value="keyboard">Клавиатура (WASD/Стрелки)</option>
+                        <option value="joystick">Джойстик (как на телефоне)</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label>Тип стрельбы:</label>
+                    <select id="pc-shoot-type">
+                        <option value="mouse">Прицел мышкой (дуло следит за курсором)</option>
+                        <option value="keyboard">Обычный (стрельба в направлении движения)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section" id="mobile-controls-section">
+                <h3>Управление на телефоне</h3>
+                <div class="settings-option">
+                    <label>Раскладка управления:</label>
+                    <select id="mobile-control-layout">
+                        <option value="joystick">Джойстик + кнопки</option>
+                        <option value="buttons">Кнопки на экране</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label>Тип стрельбы:</label>
+                    <select id="mobile-shoot-type">
+                        <option value="touch">Наводка (стрельба в точку касания)</option>
+                        <option value="button">Обычный (стрельба в направлении движения)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="close-settings">Сохранить и закрыть</button>
         </div>
 
         <div id="loading" style="display: none;">
@@ -449,12 +674,28 @@
         let cactiDestroyed = 0;
         let shotsFired = 0;
         let mapLoaded = false;
-        let controlType = 'pc';
+        
+        // Новые переменные для системы настроек
+        let deviceType = 'pc';
+        let pcControlLayout = 'keyboard';
+        let pcShootType = 'keyboard';
+        let mobileControlLayout = 'joystick';
+        let mobileShootType = 'button';
+        
         let mobileControls = {
             moveX: 0,
             moveY: 0,
             shooting: false
         };
+        
+        let buttonControls = {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            shooting: false
+        };
+        
         let pcMobileJoystickActive = false;
         let lastShotTime = 0;
         const SHOT_COOLDOWN = 300;
@@ -466,20 +707,36 @@
         let mapListener;
         let cleanupInterval;
 
+        // Элементы UI
         const mapTimerElement = document.getElementById('map-timer');
         const playerListElement = document.getElementById('player-list');
         const loginScreen = document.getElementById('login-screen');
         const playerNameInput = document.getElementById('player-name');
-        const controlTypeSelect = document.getElementById('control-type');
+        const deviceTypeSelect = document.getElementById('device-type');
         const joinGameButton = document.getElementById('join-game');
+        const settingsBtn = document.getElementById('settings-btn');
         const loadingElement = document.getElementById('loading');
         const mobileControlsElement = document.getElementById('mobile-controls');
+        const mobileButtonsControlsElement = document.getElementById('mobile-buttons-controls');
         const moveJoystick = document.getElementById('move-joystick');
         const joystickHandle = moveJoystick.querySelector('.joystick-handle');
         const shootButton = document.getElementById('shoot-button');
+        const shootButtonButtons = document.getElementById('shoot-button-buttons');
+        const upButton = document.getElementById('up-button');
+        const downButton = document.getElementById('down-button');
+        const leftButton = document.getElementById('left-button');
+        const rightButton = document.getElementById('right-button');
         const pcMobileJoystickElement = document.getElementById('pc-mobile-joystick');
         const pcMobileJoystickContainer = document.getElementById('pc-mobile-joystick-container');
         const pcMobileJoystickHandle = pcMobileJoystickContainer.querySelector('.pc-mobile-joystick-handle');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsScreen = document.getElementById('settings-screen');
+        const settingsDeviceType = document.getElementById('settings-device-type');
+        const pcControlLayoutSelect = document.getElementById('pc-control-layout');
+        const pcShootTypeSelect = document.getElementById('pc-shoot-type');
+        const mobileControlLayoutSelect = document.getElementById('mobile-control-layout');
+        const mobileShootTypeSelect = document.getElementById('mobile-shoot-type');
+        const closeSettingsButton = document.getElementById('close-settings');
 
         const keys = {
             'w': false, 'a': false, 's': false, 'd': false,
@@ -488,12 +745,190 @@
             'arrowup': false, 'arrowleft': false, 'arrowdown': false, 'arrowright': false
         };
 
+        // Определение мобильного устройства
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
-        if (isMobileDevice()) {
-            controlTypeSelect.value = 'mobile';
+        // Инициализация настроек по умолчанию
+        function initializeSettings() {
+            if (isMobileDevice()) {
+                deviceTypeSelect.value = 'mobile';
+                settingsDeviceType.value = 'mobile';
+            }
+            
+            // Устанавливаем значения по умолчанию
+            pcShootTypeSelect.value = 'keyboard';
+            mobileShootTypeSelect.value = 'button';
+            
+            updateSettingsVisibility();
+        }
+
+        // Обновление видимости секций настроек
+        function updateSettingsVisibility() {
+            const pcSection = document.getElementById('pc-controls-section');
+            const mobileSection = document.getElementById('mobile-controls-section');
+            
+            if (settingsDeviceType.value === 'pc') {
+                pcSection.style.display = 'block';
+                mobileSection.style.display = 'none';
+            } else {
+                pcSection.style.display = 'none';
+                mobileSection.style.display = 'block';
+            }
+        }
+
+        // Обработка движения мышки для прицела
+        function handleMouseMove(e) {
+            if (deviceType === 'pc' && pcShootType === 'mouse' && player) {
+                // Расчет направления к курсору
+                const canvasRect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - canvasRect.left;
+                const mouseY = e.clientY - canvasRect.top;
+                
+                // Пересчет координат с учетом смещения камеры
+                const worldMouseX = mouseX - (canvas.width/2 - player.x);
+                const worldMouseY = mouseY - (canvas.height/2 - player.y);
+                
+                // Обновление направления игрока
+                const deltaX = worldMouseX - player.x;
+                const deltaY = worldMouseY - player.y;
+                player.direction = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+            }
+        }
+
+        // Обработка клика мышки для стрельбы
+        function handleMouseClick(e) {
+            if (deviceType === 'pc' && pcShootType === 'mouse') {
+                const now = Date.now();
+                if (now - lastShotTime > SHOT_COOLDOWN) {
+                    shoot();
+                    lastShotTime = now;
+                }
+            }
+        }
+
+        // Обработка касания на телефоне для стрельбы по наводке
+        function handleTouchShoot(e) {
+            if (deviceType === 'mobile' && mobileShootType === 'touch' && player) {
+                e.preventDefault();
+                
+                const touch = e.changedTouches[0];
+                const canvasRect = canvas.getBoundingClientRect();
+                const touchX = touch.clientX - canvasRect.left;
+                const touchY = touch.clientY - canvasRect.top;
+                
+                // Пересчет координат с учетом смещения камеры
+                const worldTouchX = touchX - (canvas.width/2 - player.x);
+                const worldTouchY = touchY - (canvas.height/2 - player.y);
+                
+                // Обновление направления игрока
+                const deltaX = worldTouchX - player.x;
+                const deltaY = worldTouchY - player.y;
+                player.direction = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                
+                // Стрельба
+                const now = Date.now();
+                if (now - lastShotTime > SHOT_COOLDOWN) {
+                    shoot();
+                    lastShotTime = now;
+                }
+            }
+        }
+
+        // Обработчики для окна настроек
+        settingsBtn.addEventListener('click', () => {
+            settingsScreen.style.display = 'flex';
+        });
+
+        settingsButton.addEventListener('click', () => {
+            settingsScreen.style.display = 'flex';
+        });
+
+        closeSettingsButton.addEventListener('click', () => {
+            settingsScreen.style.display = 'none';
+            // Применяем настройки
+            deviceType = settingsDeviceType.value;
+            pcControlLayout = pcControlLayoutSelect.value;
+            pcShootType = pcShootTypeSelect.value;
+            mobileControlLayout = mobileControlLayoutSelect.value;
+            mobileShootType = mobileShootTypeSelect.value;
+            
+            if (player) {
+                updateControlSystem();
+            }
+        });
+
+        settingsDeviceType.addEventListener('change', updateSettingsVisibility);
+
+        // Функция обновления системы управления
+        function updateControlSystem() {
+            // Сбрасываем все обработчики
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('click', handleMouseClick);
+            canvas.removeEventListener('touchstart', handleTouchShoot);
+            
+            // Сбрасываем все элементы управления
+            mobileControlsElement.style.display = 'none';
+            mobileButtonsControlsElement.style.display = 'none';
+            pcMobileJoystickElement.style.display = 'none';
+            
+            // Применяем новые настройки
+            if (deviceType === 'pc') {
+                if (pcControlLayout === 'joystick') {
+                    pcMobileJoystickElement.style.display = 'flex';
+                    initializePCMobileJoystick();
+                }
+                
+                if (pcShootType === 'mouse') {
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('click', handleMouseClick);
+                }
+            } else { // mobile
+                if (mobileControlLayout === 'joystick') {
+                    mobileControlsElement.style.display = 'flex';
+                    initializeMobileControls();
+                } else if (mobileControlLayout === 'buttons') {
+                    mobileButtonsControlsElement.style.display = 'flex';
+                    initializeMobileButtons();
+                }
+                
+                if (mobileShootType === 'touch') {
+                    canvas.addEventListener('touchstart', handleTouchShoot);
+                }
+            }
+        }
+
+        // Инициализация кнопок на телефоне
+        function initializeMobileButtons() {
+            // Обработчики для кнопок движения
+            function setupButton(button, direction) {
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    buttonControls[direction] = true;
+                }, { passive: false });
+
+                button.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    buttonControls[direction] = false;
+                }, { passive: false });
+            }
+
+            setupButton(upButton, 'up');
+            setupButton(downButton, 'down');
+            setupButton(leftButton, 'left');
+            setupButton(rightButton, 'right');
+
+            // Обработчики для кнопки стрельбы
+            shootButtonButtons.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                buttonControls.shooting = true;
+            }, { passive: false });
+
+            shootButtonButtons.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                buttonControls.shooting = false;
+            }, { passive: false });
         }
 
         function initializeFirebase() {
@@ -794,7 +1229,8 @@
                     mobileControls.moveY = 0;
                 }
 
-                if (player && (mobileControls.moveX !== 0 || mobileControls.moveY !== 0)) {
+                // Обновляем направление ТОЛЬКО если не используется наводка касанием
+                if (mobileShootType === 'button' && (mobileControls.moveX !== 0 || mobileControls.moveY !== 0)) {
                     player.direction = Math.atan2(mobileControls.moveY, mobileControls.moveX) * 180 / Math.PI;
                 }
             }
@@ -861,7 +1297,8 @@
                     mobileControls.moveY = 0;
                 }
 
-                if (player && (mobileControls.moveX !== 0 || mobileControls.moveY !== 0)) {
+                // Обновляем направление ТОЛЬКО если не используется прицел мышкой
+                if (pcShootType === 'keyboard' && (mobileControls.moveX !== 0 || mobileControls.moveY !== 0)) {
                     player.direction = Math.atan2(mobileControls.moveY, mobileControls.moveX) * 180 / Math.PI;
                 }
             }
@@ -1065,7 +1502,7 @@
         function smartMovement(newX, newY) {
             if (!player) return;
             
-            const originalSpeed = player.speed || 3;
+            const originalSpeed = player.speed || 1.5;
             let finalX = player.x;
             let finalY = player.y;
             
@@ -1253,64 +1690,107 @@
             
             let newX = player.x;
             let newY = player.y;
-            const speed = player.speed || 3;
+            const speed = player.speed || 1.5;
 
-            if (controlType === 'pc') {
-                let moveX = 0;
-                let moveY = 0;
-                
-                if (keys.w || keys.arrowup || keys.ц) {
-                    moveY -= 1;
-                }
-                if (keys.s || keys.arrowdown || keys.ы) {
-                    moveY += 1;
-                }
-                if (keys.a || keys.arrowleft || keys.ф) {
-                    moveX -= 1;
-                }
-                if (keys.d || keys.arrowright || keys.в) {
-                    moveX += 1;
-                }
-                
-                const magnitude = Math.sqrt(moveX * moveX + moveY * moveY);
-                if (magnitude > 0) {
-                    moveX /= magnitude;
-                    moveY /= magnitude;
-                }
-                
-                newX += moveX * speed;
-                newY += moveY * speed;
-                
-                if (moveX !== 0 || moveY !== 0) {
-                    player.direction = Math.atan2(moveY, moveX) * 180 / Math.PI;
-                }
-                
-                if (keys[' ']) {
-                    const now = Date.now();
-                    if (now - lastShotTime > SHOT_COOLDOWN) {
-                        shoot();
-                        lastShotTime = now;
+            if (deviceType === 'pc') {
+                if (pcControlLayout === 'keyboard') {
+                    let moveX = 0;
+                    let moveY = 0;
+                    
+                    if (keys.w || keys.arrowup || keys.ц) {
+                        moveY -= 1;
                     }
-                }
-            } else if (controlType === 'pc-mobile-joystick' || controlType === 'mobile') {
-                const moveSpeed = speed;
-                newX += mobileControls.moveX * moveSpeed;
-                newY += mobileControls.moveY * moveSpeed;
-                
-                if (controlType === 'pc-mobile-joystick') {
-                    if (keys[' ']) {
+                    if (keys.s || keys.arrowdown || keys.ы) {
+                        moveY += 1;
+                    }
+                    if (keys.a || keys.arrowleft || keys.ф) {
+                        moveX -= 1;
+                    }
+                    if (keys.d || keys.arrowright || keys.в) {
+                        moveX += 1;
+                    }
+                    
+                    const magnitude = Math.sqrt(moveX * moveX + moveY * moveY);
+                    if (magnitude > 0) {
+                        moveX /= magnitude;
+                        moveY /= magnitude;
+                    }
+                    
+                    newX += moveX * speed;
+                    newY += moveY * speed;
+                    
+                    // Обновляем направление ТОЛЬКО если не используется прицел мышкой
+                    if (pcShootType === 'keyboard' && (moveX !== 0 || moveY !== 0)) {
+                        player.direction = Math.atan2(moveY, moveX) * 180 / Math.PI;
+                    }
+                    
+                    // Стрельба пробелом для обычного режима
+                    if (pcShootType === 'keyboard' && keys[' ']) {
                         const now = Date.now();
                         if (now - lastShotTime > SHOT_COOLDOWN) {
                             shoot();
                             lastShotTime = now;
                         }
                     }
-                } else if (mobileControls.shooting) {
-                    const now = Date.now();
-                    if (now - lastShotTime > SHOT_COOLDOWN) {
-                        shoot();
-                        lastShotTime = now;
-                        mobileControls.shooting = false;
+                } else if (pcControlLayout === 'joystick') {
+                    const moveSpeed = speed;
+                    newX += mobileControls.moveX * moveSpeed;
+                    newY += mobileControls.moveY * moveSpeed;
+                    
+                    if (pcShootType === 'keyboard' && keys[' ']) {
+                        const now = Date.now();
+                        if (now - lastShotTime > SHOT_COOLDOWN) {
+                            shoot();
+                            lastShotTime = now;
+                        }
+                    }
+                }
+            } else if (deviceType === 'mobile') {
+                if (mobileControlLayout === 'joystick') {
+                    const moveSpeed = speed;
+                    newX += mobileControls.moveX * moveSpeed;
+                    newY += mobileControls.moveY * moveSpeed;
+                    
+                    // Стрельба кнопкой для обычного режима
+                    if (mobileShootType === 'button' && mobileControls.shooting) {
+                        const now = Date.now();
+                        if (now - lastShotTime > SHOT_COOLDOWN) {
+                            shoot();
+                            lastShotTime = now;
+                            mobileControls.shooting = false;
+                        }
+                    }
+                } else if (mobileControlLayout === 'buttons') {
+                    let moveX = 0;
+                    let moveY = 0;
+                    
+                    if (buttonControls.up) moveY -= 1;
+                    if (buttonControls.down) moveY += 1;
+                    if (buttonControls.left) moveX -= 1;
+                    if (buttonControls.right) moveX += 1;
+                    
+                    const magnitude = Math.sqrt(moveX * moveX + moveY * moveY);
+                    if (magnitude > 0) {
+                        moveX /= magnitude;
+                        moveY /= magnitude;
+                    }
+                    
+                    newX += moveX * speed;
+                    newY += moveY * speed;
+                    
+                    // Обновляем направление ТОЛЬКО если не используется наводка касанием
+                    if (mobileShootType === 'button' && (moveX !== 0 || moveY !== 0)) {
+                        player.direction = Math.atan2(moveY, moveX) * 180 / Math.PI;
+                    }
+                    
+                    // Стрельба кнопкой для обычного режима
+                    if (mobileShootType === 'button' && buttonControls.shooting) {
+                        const now = Date.now();
+                        if (now - lastShotTime > SHOT_COOLDOWN) {
+                            shoot();
+                            lastShotTime = now;
+                            buttonControls.shooting = false;
+                        }
                     }
                 }
             }
@@ -1367,7 +1847,11 @@
                     color: player.color,
                     name: player.name,
                     hp: player.hp,
-                    controlType: controlType,
+                    deviceType: deviceType,
+                    pcControlLayout: pcControlLayout,
+                    pcShootType: pcShootType,
+                    mobileControlLayout: mobileControlLayout,
+                    mobileShootType: mobileShootType,
                     lastUpdate: Date.now()
                 };
                 database.ref('players/' + playerId).update(playerData);
@@ -1389,7 +1873,7 @@
                         ...playersData[id],
                         width: 30,
                         height: 30,
-                        speed: 3,
+                        speed: 1.5,
                         hp: playersData[id].hp !== undefined ? playersData[id].hp : MAX_HP
                     };
                     
@@ -1448,14 +1932,13 @@
             playerListElement.innerHTML = '<strong>Игроки онлайн:</strong><br>';
             for (const id in players) {
                 const playerData = players[id];
-                const controlTypeIcon = playerData.controlType === 'mobile' ? '🎮' : 
-                                      playerData.controlType === 'pc-mobile-joystick' ? '📱' : '🖥️';
+                const deviceIcon = playerData.deviceType === 'mobile' ? '📱' : '🖥️';
                 const hpText = playerData.hp > 0 ? `❤️${playerData.hp}` : '💀';
                 
                 if (id !== playerId) {
-                    playerListElement.innerHTML += `• ${playerData.name || 'Игрок'} ${controlTypeIcon} ${hpText}<br>`;
+                    playerListElement.innerHTML += `• ${playerData.name || 'Игрок'} ${deviceIcon} ${hpText}<br>`;
                 } else {
-                    playerListElement.innerHTML += `• ${playerData.name || 'Игрок'} (Вы) ${controlTypeIcon} ${hpText}<br>`;
+                    playerListElement.innerHTML += `• ${playerData.name || 'Игрок'} (Вы) ${deviceIcon} ${hpText}<br>`;
                 }
             }
         }
@@ -1490,7 +1973,11 @@
                 color: player.color,
                 name: playerName,
                 hp: MAX_HP,
-                controlType: controlType,
+                deviceType: deviceType,
+                pcControlLayout: pcControlLayout,
+                pcShootType: pcShootType,
+                mobileControlLayout: mobileControlLayout,
+                mobileShootType: mobileShootType,
                 lastUpdate: Date.now()
             };
             
@@ -1534,9 +2021,9 @@
             }
 
             const playerName = playerNameInput.value.trim() || 'Игрок';
-            controlType = controlTypeSelect.value;
+            deviceType = deviceTypeSelect.value;
             playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
+
             const savedPosition = getSavedPlayerPosition();
             let spawnPoint;
             
@@ -1556,12 +2043,16 @@
                 y: spawnPoint.y,
                 width: 30,
                 height: 30,
-                speed: 3,
+                speed: 1.5,
                 direction: savedPosition ? savedPosition.direction : 0,
                 color: savedPosition ? savedPosition.color : getRandomColor(),
                 name: playerName,
                 hp: MAX_HP,
-                controlType: controlType,
+                deviceType: deviceType,
+                pcControlLayout: pcControlLayout,
+                pcShootType: pcShootType,
+                mobileControlLayout: mobileControlLayout,
+                mobileShootType: mobileShootType,
                 lastUpdate: Date.now()
             };
             
@@ -1571,20 +2062,13 @@
                 } else {
                     console.log("Player saved successfully");
                 }
-                });
+            });
             
             loginScreen.style.display = 'none';
+            settingsButton.style.display = 'block';
             
-            mobileControlsElement.style.display = 'none';
-            pcMobileJoystickElement.style.display = 'none';
-            
-            if (controlType === 'mobile') {
-                mobileControlsElement.style.display = 'flex';
-                initializeMobileControls();
-            } else if (controlType === 'pc-mobile-joystick') {
-                pcMobileJoystickElement.style.display = 'flex';
-                initializePCMobileJoystick();
-            }
+            // Применяем выбранное управление
+            updateControlSystem();
             
             setupPlayersListener();
             setupBulletsListener();
@@ -1665,7 +2149,11 @@
             gameLoop();
         }
         
-        window.addEventListener('load', initGame);
+        // Инициализация при загрузке
+        window.addEventListener('load', () => {
+            initializeSettings();
+            initGame();
+        });
     </script>
 </body>
 </html>
