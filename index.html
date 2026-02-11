@@ -90,6 +90,7 @@
             .menu-buttons {
                 flex-direction: column;
                 width: 100%;
+                max-width: 300px;
             }
             
             .menu-btn {
@@ -97,7 +98,7 @@
             }
         }
 
-        /* ============ ФОРМЫ ============ */
+        /* ============ ФОРМЫ (МОДАЛЬНЫЕ) ============ */
         .form-screen {
             display: none;
             position: fixed;
@@ -105,12 +106,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
             z-index: 1000;
             backdrop-filter: blur(5px);
+            overflow-y: auto;
         }
 
         .form-screen.active {
@@ -119,14 +121,13 @@
 
         .form-container {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 16px;
+            padding: 25px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            max-width: 450px;
+            max-width: 400px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
             animation: slideIn 0.3s ease;
+            margin: auto;
         }
 
         @keyframes slideIn {
@@ -142,39 +143,29 @@
 
         .form-container h2 {
             color: #2a5298;
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
-
-        @media (max-width: 768px) {
-            .form-container {
-                padding: 25px 20px;
-            }
-            
-            .form-container h2 {
-                font-size: 22px;
-                margin-bottom: 20px;
-            }
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             color: #333;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             transition: border-color 0.3s;
         }
 
@@ -185,23 +176,23 @@
 
         .input-group small {
             color: #666;
-            font-size: 12px;
-            margin-top: 4px;
+            font-size: 11px;
+            margin-top: 3px;
             display: block;
         }
 
         .form-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 18px;
         }
 
         .form-buttons button {
             flex: 1;
-            padding: 12px;
+            padding: 11px;
             border: none;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -220,10 +211,10 @@
         .error-message {
             background: #ffebee;
             color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
         }
 
         /* ============ КОМНАТА (ZOOM STYLE) ============ */
@@ -241,7 +232,7 @@
         /* Хедер комнаты */
         .room-header {
             background: rgba(0,0,0,0.8);
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -254,20 +245,20 @@
 
         .room-title {
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
 
         .room-id-display {
             color: #aaa;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         /* Сетка видео */
         .video-grid {
             display: grid;
             gap: 10px;
-            padding: 80px 20px 100px 20px;
+            padding: 70px 20px 100px 20px;
             min-height: 100vh;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             grid-auto-rows: minmax(225px, auto);
@@ -276,7 +267,7 @@
         @media (max-width: 768px) {
             .video-grid {
                 grid-template-columns: 1fr;
-                padding: 70px 10px 120px 10px;
+                padding: 60px 10px 110px 10px;
             }
         }
 
@@ -327,6 +318,31 @@
             border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .connection-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            display: inline-block;
+        }
+
+        .connection-indicator.connecting {
+            background: #ff9800;
+            animation: blink 1s infinite;
+        }
+
+        .connection-indicator.failed {
+            background: #f44336;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .video-status {
@@ -425,9 +441,18 @@
             display: none;
         }
 
+        /* Скрыть демонстрацию на мобильном */
+        .desktop-only {
+            display: flex;
+        }
+
         @media (max-width: 768px) {
             .mobile-only {
                 display: flex;
+            }
+            
+            .desktop-only {
+                display: none;
             }
             
             .control-bar {
@@ -450,21 +475,6 @@
         /* Скрытые элементы */
         .hidden {
             display: none !important;
-        }
-
-        /* Loader */
-        .loader {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -498,13 +508,13 @@
 
             <div class="input-group">
                 <label>Название лобби:</label>
-                <input type="text" id="lobbyName" placeholder="Например: Встреча команды" maxlength="50">
+                <input type="text" id="lobbyName" placeholder="Встреча команды" maxlength="50">
             </div>
 
             <div class="input-group">
                 <label>Пароль (необязательно):</label>
-                <input type="password" id="lobbyPassword" placeholder="Оставьте пустым для открытого лобби" maxlength="20">
-                <small>Пароль защитит ваше лобби от посторонних</small>
+                <input type="password" id="lobbyPassword" placeholder="Оставьте пустым" maxlength="20">
+                <small>Защитит ваше лобби</small>
             </div>
 
             <div class="form-buttons">
@@ -527,12 +537,12 @@
 
             <div class="input-group">
                 <label>ID лобби:</label>
-                <input type="text" id="joinRoomId" placeholder="Например: 123" maxlength="3">
+                <input type="text" id="joinRoomId" placeholder="123" maxlength="3">
             </div>
 
             <div class="input-group">
                 <label>Пароль (если требуется):</label>
-                <input type="password" id="joinPassword" placeholder="Введите пароль лобби">
+                <input type="password" id="joinPassword" placeholder="Введите пароль">
             </div>
 
             <div class="form-buttons">
@@ -574,9 +584,9 @@
                 <span class="control-label">Сменить</span>
             </button>
             
-            <button class="control-btn" id="screenShareBtn" onclick="toggleScreenShare()">
+            <button class="control-btn desktop-only" id="screenShareBtn" onclick="toggleScreenShare()">
                 🖥️
-                <span class="control-label">Демонстрация</span>
+                <span class="control-label">Экран</span>
             </button>
             
             <button class="control-btn leave" onclick="leaveLobby()">
@@ -611,26 +621,65 @@
         let myUserId = null;
         let peerConnections = {};
         let localStream = null;
-        let screenStream = null; // Поток демонстрации экрана
+        let screenStream = null;
         
         // Состояния устройств
         let micEnabled = true;
         let cameraEnabled = true;
         let screenSharing = false;
-        let currentCamera = 'user'; // 'user' = фронтальная, 'environment' = задняя
+        let currentCamera = 'user';
 
-        // ICE серверы
+        // ✅ TWILIO TURN СЕРВЕРЫ (БЕСПЛАТНЫЕ)
         const iceServers = {
             iceServers: [
-                { urls: 'stun:openrelay.metered.ca:80' },
+                // Google STUN (запасной)
+                { urls: 'stun:stun.l.google.com:19302' },
+                
+                // Twilio TURN (основной - НАДЁЖНЫЙ!)
+                {
+                    urls: 'turn:global.turn.twilio.com:3478?transport=udp',
+                    username: 'f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d',
+                    credential: '5K0h0ZFW6r42K4BmXVJSYe0B1yBFz+RLvjHY18c7qU4='
+                },
+                {
+                    urls: 'turn:global.turn.twilio.com:3478?transport=tcp',
+                    username: 'f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d',
+                    credential: '5K0h0ZFW6r42K4BmXVJSYe0B1yBFz+RLvjHY18c7qU4='
+                },
+                {
+                    urls: 'turn:global.turn.twilio.com:443?transport=tcp',
+                    username: 'f4b4035eaa76f4a55de5f4351567653ee4ff6fa97b50b6b334fcc1be9c27212d',
+                    credential: '5K0h0ZFW6r42K4BmXVJSYe0B1yBFz+RLvjHY18c7qU4='
+                },
+                
+                // Metered TURN (запасной)
                 { urls: 'stun:stun.relay.metered.ca:80' },
                 {
-                    urls: 'turn:openrelay.metered.ca:80',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
+                    urls: 'turn:standard.relay.metered.ca:80',
+                    username: 'e9939d7c0c27f71c08c697e8',
+                    credential: 'oBLdp0jBs7MdQDzL'
+                },
+                {
+                    urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
+                    username: 'e9939d7c0c27f71c08c697e8',
+                    credential: 'oBLdp0jBs7MdQDzL'
+                },
+                {
+                    urls: 'turn:standard.relay.metered.ca:443',
+                    username: 'e9939d7c0c27f71c08c697e8',
+                    credential: 'oBLdp0jBs7MdQDzL'
+                },
+                {
+                    urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+                    username: 'e9939d7c0c27f71c08c697e8',
+                    credential: 'oBLdp0jBs7MdQDzL'
                 }
-            ]
+            ],
+            iceCandidatePoolSize: 10
         };
+
+        console.log('🚀 Pomorok Audio запущен');
+        console.log('📡 TURN серверы настроены:', iceServers.iceServers.length, 'серверов');
 
         // Генерация ID комнаты
         function generateRoomId() {
@@ -677,7 +726,6 @@
             currentLobbyName = lobbyName;
             currentRoomId = generateRoomId();
 
-            // Проверяем уникальность ID
             const roomRef = ref(database, `rooms/${currentRoomId}`);
             const snapshot = await get(roomRef);
             
@@ -685,7 +733,6 @@
                 currentRoomId = generateRoomId();
             }
 
-            // Создаём лобби с паролем
             const lobbyRef = ref(database, `rooms/${currentRoomId}/info`);
             await set(lobbyRef, {
                 name: lobbyName,
@@ -713,7 +760,6 @@
                 return;
             }
 
-            // Проверяем существование лобби
             const roomRef = ref(database, `rooms/${roomId}`);
             const snapshot = await get(roomRef);
             
@@ -724,7 +770,6 @@
 
             const roomData = snapshot.val();
             
-            // Проверяем пароль
             if (roomData.info && roomData.info.password) {
                 if (password !== roomData.info.password) {
                     showError('joinError', 'Неверный пароль');
@@ -744,7 +789,6 @@
             try {
                 console.log('🎬 Запрос медиа устройств...');
                 
-                // Запрос камеры и микрофона
                 localStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: true,
@@ -761,10 +805,8 @@
 
                 console.log('✅ Медиа получено!');
 
-                // Генерируем ID пользователя
                 myUserId = push(ref(database, `rooms/${currentRoomId}/users`)).key;
 
-                // Добавляем в комнату
                 const userRef = ref(database, `rooms/${currentRoomId}/users/${myUserId}`);
                 await set(userRef, {
                     username: currentUser,
@@ -776,21 +818,17 @@
 
                 onDisconnect(userRef).remove();
 
-                // Показываем комнату
                 document.getElementById('roomTitle').textContent = currentLobbyName;
                 document.getElementById('displayRoomId').textContent = currentRoomId;
                 showScreen('roomScreen');
 
-                // Добавляем своё видео
                 addLocalVideo();
 
-                // Слушаем изменения пользователей
                 const usersRef = ref(database, `rooms/${currentRoomId}/users`);
                 onValue(usersRef, (snapshot) => {
                     handleUsers(snapshot.val());
                 });
 
-                // Слушаем сигналы WebRTC
                 listenForSignals();
 
             } catch (error) {
@@ -821,12 +859,12 @@
             const video = document.createElement('video');
             video.srcObject = localStream;
             video.autoplay = true;
-            video.muted = true; // Своё видео без звука
+            video.muted = true;
             video.playsInline = true;
             
             const nameTag = document.createElement('div');
             nameTag.className = 'video-name';
-            nameTag.textContent = currentUser + ' (Вы)';
+            nameTag.innerHTML = '<span class="connection-indicator"></span>' + currentUser + ' (Вы)';
             
             const status = document.createElement('div');
             status.className = 'video-status';
@@ -860,29 +898,30 @@
                 camIcon.textContent = '📹';
                 status.appendChild(camIcon);
             }
+
+            if (screenSharing) {
+                const screenIcon = document.createElement('div');
+                screenIcon.className = 'status-icon';
+                screenIcon.style.background = '#2196F3';
+                screenIcon.textContent = '🖥️';
+                status.appendChild(screenIcon);
+            }
         }
 
         // Управление пользователями
         function handleUsers(users) {
             if (!users) return;
 
-            const videoGrid = document.getElementById('videoGrid');
-            const existingVideos = new Set();
-
             Object.entries(users).forEach(([userId, userData]) => {
-                if (userId === myUserId) return; // Свой не добавляем
-
-                existingVideos.add(userId);
+                if (userId === myUserId) return;
 
                 if (!peerConnections[userId]) {
                     createPeerConnection(userId, userData);
                 } else {
-                    // Обновляем статусы существующих пользователей
                     updateRemoteUserStatus(userId, userData);
                 }
             });
 
-            // Удаляем отключившихся
             Object.keys(peerConnections).forEach(userId => {
                 if (!users[userId]) {
                     const videoElement = document.getElementById(`video-${userId}`);
@@ -898,29 +937,68 @@
 
         // Создание WebRTC соединения
         async function createPeerConnection(userId, userData) {
+            console.log(`🔗 Создаём соединение с ${userData.username} (${userId})`);
+            
             const pc = new RTCPeerConnection(iceServers);
             peerConnections[userId] = pc;
 
+            // ДИАГНОСТИКА
+            pc.onconnectionstatechange = () => {
+                console.log(`📊 ${userData.username}: ${pc.connectionState}`);
+                updateConnectionIndicator(userId, pc.connectionState);
+                
+                if (pc.connectionState === 'connected') {
+                    console.log(`✅ ${userData.username} ПОДКЛЮЧЁН!`);
+                }
+                
+                if (pc.connectionState === 'failed') {
+                    console.error(`❌ ${userData.username} НЕ ПОДКЛЮЧИЛСЯ!`);
+                    console.error('🔍 Проверьте:');
+                    console.error('1. Строгий NAT/файрвол у одного из вас');
+                    console.error('2. Разные сети (корп/публичная)');
+                    console.error('3. Попробуйте оба на мобильном 4G');
+                }
+            };
+
+            pc.oniceconnectionstatechange = () => {
+                console.log(`🧊 ICE ${userData.username}: ${pc.iceConnectionState}`);
+                
+                if (pc.iceConnectionState === 'failed') {
+                    console.error(`❌ ICE FAILED для ${userData.username}!`);
+                    console.log('🔄 Пробуем перезапустить ICE...');
+                    pc.restartIce();
+                }
+            };
+
+            pc.onicegatheringstatechange = () => {
+                console.log(`🎲 ICE gathering ${userData.username}: ${pc.iceGatheringState}`);
+            };
+
             // Добавляем локальный поток
             localStream.getTracks().forEach(track => {
+                console.log(`➕ Добавляем ${track.kind} трек`);
                 pc.addTrack(track, localStream);
             });
 
             // Получаем удалённый поток
             pc.ontrack = (event) => {
+                console.log(`📥 Получен ${event.track.kind} от ${userData.username}`);
                 addRemoteVideo(userId, userData, event.streams[0]);
             };
 
             // ICE кандидаты
             pc.onicecandidate = (event) => {
                 if (event.candidate) {
+                    console.log(`🎲 ICE кандидат (${event.candidate.type}) для ${userData.username}`);
                     const candidateRef = ref(database, `rooms/${currentRoomId}/signals/${userId}/${myUserId}/candidates`);
                     push(candidateRef, event.candidate.toJSON());
+                } else {
+                    console.log(`✅ Все ICE кандидаты собраны для ${userData.username}`);
                 }
             };
 
-            // Создаём offer если наш ID меньше
             if (myUserId < userId) {
+                console.log(`📤 Создаём OFFER для ${userData.username}`);
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
                 
@@ -929,6 +1007,27 @@
                     type: offer.type,
                     sdp: offer.sdp
                 });
+                console.log(`✅ OFFER отправлен ${userData.username}`);
+            }
+        }
+
+        // Обновление индикатора подключения
+        function updateConnectionIndicator(userId, state) {
+            const nameTag = document.querySelector(`#video-${userId} .video-name`);
+            if (!nameTag) return;
+            
+            let indicator = nameTag.querySelector('.connection-indicator');
+            if (!indicator) {
+                indicator = document.createElement('span');
+                indicator.className = 'connection-indicator';
+                nameTag.insertBefore(indicator, nameTag.firstChild);
+            }
+            
+            indicator.className = 'connection-indicator';
+            if (state === 'connecting' || state === 'new') {
+                indicator.classList.add('connecting');
+            } else if (state === 'failed' || state === 'disconnected' || state === 'closed') {
+                indicator.classList.add('failed');
             }
         }
 
@@ -950,7 +1049,7 @@
                 
                 const nameTag = document.createElement('div');
                 nameTag.className = 'video-name';
-                nameTag.textContent = userData.username;
+                nameTag.innerHTML = '<span class="connection-indicator"></span>' + userData.username;
                 
                 const status = document.createElement('div');
                 status.className = 'video-status';
@@ -962,7 +1061,6 @@
                 videoGrid.appendChild(container);
             }
             
-            // Обновляем статусы
             updateRemoteUserStatus(userId, userData);
         }
 
@@ -973,7 +1071,6 @@
             
             status.innerHTML = '';
             
-            // Иконка выключенного микрофона
             if (!userData.micEnabled) {
                 const micIcon = document.createElement('div');
                 micIcon.className = 'status-icon muted';
@@ -981,7 +1078,6 @@
                 status.appendChild(micIcon);
             }
             
-            // Иконка выключенной камеры
             if (!userData.cameraEnabled) {
                 const camIcon = document.createElement('div');
                 camIcon.className = 'status-icon muted';
@@ -989,7 +1085,6 @@
                 status.appendChild(camIcon);
             }
             
-            // Иконка демонстрации экрана
             if (userData.screenSharing) {
                 const screenIcon = document.createElement('div');
                 screenIcon.className = 'status-icon';
@@ -1013,6 +1108,7 @@
                     const pc = peerConnections[fromUserId];
 
                     if (signalData.offer && pc.signalingState === 'stable') {
+                        console.log(`📥 Получен OFFER от ${fromUserId}`);
                         await pc.setRemoteDescription(new RTCSessionDescription(signalData.offer));
                         const answer = await pc.createAnswer();
                         await pc.setLocalDescription(answer);
@@ -1022,9 +1118,11 @@
                             type: answer.type,
                             sdp: answer.sdp
                         });
+                        console.log(`📤 ANSWER отправлен ${fromUserId}`);
                     }
 
                     if (signalData.answer && pc.signalingState === 'have-local-offer') {
+                        console.log(`📥 Получен ANSWER от ${fromUserId}`);
                         await pc.setRemoteDescription(new RTCSessionDescription(signalData.answer));
                     }
 
@@ -1041,7 +1139,7 @@
             });
         }
 
-        // Универсальная функция обновления статуса пользователя
+        // Универсальная функция обновления статуса
         async function updateUserStatus() {
             if (!myUserId || !currentRoomId) return;
             
@@ -1068,9 +1166,7 @@
             const btn = document.getElementById('micBtn');
             btn.classList.toggle('disabled', !micEnabled);
             
-            // Обновляем в Firebase
             await updateUserStatus();
-            
             updateLocalStatus();
         };
 
@@ -1087,9 +1183,7 @@
             const btn = document.getElementById('cameraBtn');
             btn.classList.toggle('disabled', !cameraEnabled);
             
-            // Обновляем в Firebase
             await updateUserStatus();
-            
             updateLocalStatus();
         };
 
@@ -1098,13 +1192,10 @@
             if (!localStream) return;
             
             try {
-                // Меняем камеру
                 currentCamera = currentCamera === 'user' ? 'environment' : 'user';
                 
-                // Останавливаем текущий поток
                 localStream.getTracks().forEach(track => track.stop());
                 
-                // Запрашиваем новую камеру
                 localStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: true,
@@ -1119,13 +1210,11 @@
                     }
                 });
                 
-                // Обновляем локальное видео
                 const localVideo = document.querySelector('#local-video video');
                 if (localVideo) {
                     localVideo.srcObject = localStream;
                 }
                 
-                // Обновляем все peer connections
                 Object.values(peerConnections).forEach(pc => {
                     const senders = pc.getSenders();
                     localStream.getTracks().forEach(track => {
@@ -1138,7 +1227,7 @@
                 
             } catch (error) {
                 console.error('Ошибка смены камеры:', error);
-                alert('Не удалось сменить камеру. Возможно, у вас только одна камера.');
+                alert('Не удалось сменить камеру');
             }
         };
 
@@ -1146,7 +1235,6 @@
         window.toggleScreenShare = async function() {
             try {
                 if (!screenSharing) {
-                    // Начинаем демонстрацию
                     screenStream = await navigator.mediaDevices.getDisplayMedia({
                         video: {
                             cursor: 'always',
@@ -1156,12 +1244,10 @@
                         audio: false
                     });
 
-                    // Обработка остановки демонстрации через браузерную кнопку
                     screenStream.getVideoTracks()[0].onended = () => {
                         stopScreenShare();
                     };
 
-                    // Заменяем видеотрек на всех соединениях
                     const screenTrack = screenStream.getVideoTracks()[0];
                     Object.values(peerConnections).forEach(pc => {
                         const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
@@ -1170,7 +1256,6 @@
                         }
                     });
 
-                    // Обновляем локальное видео
                     const localVideo = document.querySelector('#local-video video');
                     if (localVideo) {
                         localVideo.srcObject = screenStream;
@@ -1179,29 +1264,26 @@
                     screenSharing = true;
                     document.getElementById('screenShareBtn').classList.add('sharing');
                     
-                    // Обновляем статус в Firebase
                     await updateUserStatus();
+                    updateLocalStatus();
 
                 } else {
-                    // Останавливаем демонстрацию
                     stopScreenShare();
                 }
             } catch (error) {
-                console.error('Ошибка демонстрации экрана:', error);
+                console.error('Ошибка демонстрации:', error);
                 if (error.name === 'NotAllowedError') {
-                    alert('Вы отклонили демонстрацию экрана.');
+                    alert('Вы отклонили демонстрацию экрана');
                 }
             }
         };
 
-        // Остановка демонстрации экрана
         async function stopScreenShare() {
             if (screenStream) {
                 screenStream.getTracks().forEach(track => track.stop());
                 screenStream = null;
             }
 
-            // Возвращаем камеру
             const cameraTrack = localStream.getVideoTracks()[0];
             if (cameraTrack) {
                 Object.values(peerConnections).forEach(pc => {
@@ -1211,7 +1293,6 @@
                     }
                 });
 
-                // Обновляем локальное видео
                 const localVideo = document.querySelector('#local-video video');
                 if (localVideo) {
                     localVideo.srcObject = localStream;
@@ -1221,13 +1302,12 @@
             screenSharing = false;
             document.getElementById('screenShareBtn').classList.remove('sharing');
             
-            // Обновляем статус в Firebase
             await updateUserStatus();
+            updateLocalStatus();
         }
 
         // Выход из лобби
         window.leaveLobby = async function() {
-            // Останавливаем демонстрацию экрана если активна
             if (screenStream) {
                 screenStream.getTracks().forEach(track => track.stop());
                 screenStream = null;
@@ -1269,7 +1349,8 @@
                 remove(userRef);
             }
         });
+
+        console.log('✅ Всё готово! Можно начинать.');
     </script>
 </body>
-
 </html>
