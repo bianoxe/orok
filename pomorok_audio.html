@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomorok Audio - Видеосвязь</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============ ГЛАВНОЕ МЕНЮ ============ */
+        .main-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo h1 {
+            font-size: 48px;
+            color: white;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo p {
+            color: rgba(255,255,255,0.8);
+            font-size: 18px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .menu-btn {
+            background: white;
+            color: #2a5298;
+            padding: 20px 40px;
+            border-radius: 12px;
+            border: none;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-width: 200px;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .menu-btn:active {
+            transform: scale(0.98);
+        }
+
+        .menu-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 36px;
+            }
+            
+            .menu-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .menu-btn {
+                width: 100%;
+            }
+        }
+
+        /* ============ ФОРМЫ ============ */
+        .form-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .form-screen.active {
+            display: flex;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .form-container h2 {
+            color: #2a5298;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 25px 20px;
+            }
+            
+            .form-container h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group small {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* ============ КОМНАТА (ZOOM STYLE) ============ */
+        .room-screen {
+            display: none;
+            min-height: 100vh;
+            background: #1a1a1a;
+            position: relative;
+        }
+
+        .room-screen.active {
+            display: block;
+        }
+
+        /* Хедер комнаты */
+        .room-header {
+            background: rgba(0,0,0,0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .room-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .room-id-display {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Сетка видео */
+        .video-grid {
+            display: grid;
+            gap: 10px;
+            padding: 80px 20px 100px 20px;
+            min-height: 100vh;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-auto-rows: minmax(225px, auto);
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+                padding: 70px 10px 120px 10px;
+            }
+        }
+
+        .video-container {
+            position: relative;
+            background: #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .video-placeholder-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .video-name {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .video-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .status-icon.muted {
+            background: #f44336;
+        }
+
+        /* Панель управления (как в Zoom) */
+        .control-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn.active {
+            background: #4caf50;
+        }
+
+        .control-btn.disabled {
+            background: #f44336;
+        }
+
+        .control-btn.leave {
+            background: #f44336;
+            width: auto;
+            padding: 0 25px;
+            border-radius: 30px;
+        }
+
+        .control-btn.sharing {
+            background: #2196F3;
+        }
+
+        .control-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 12px;
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        /* Скрыть кнопку смены камеры на десктопе */
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: flex;
+            }
+            
+            .control-bar {
+                padding: 12px 10px;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .control-label {
+                font-size: 10px;
+                bottom: -20px;
+            }
+        }
+
+        /* Скрытые элементы */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- ГЛАВНОЕ МЕНЮ -->
+    <div id="mainScreen" class="main-screen">
+        <div class="logo">
+            <h1>🎙️ Pomorok Audio</h1>
+            <p>Видеосвязь для всех</p>
+        </div>
+        <div class="menu-buttons">
+            <button class="menu-btn primary" onclick="showCreateForm()">
+                Создать лобби
+            </button>
+            <button class="menu-btn" onclick="showJoinForm()">
+                Присоединиться
+            </button>
+        </div>
+    </div>
+
+    <!-- ФОРМА СОЗДАНИЯ ЛОББИ -->
+    <div id="createScreen" class="form-screen">
+        <div class="form-container">
+            <h2>Создать лобби</h2>
+            <div id="createError" class="error-message hidden"></div>
+            
+            <div class="input-group">
+                <label>Ваш ник:</label>
+                <input type="text" id="createUsername" placeholder="Введите ваш ник" maxlength="20">
+            </div>
+
+            <div class="input-group">
+                <label>Название лобби:</label>
+                <input type="text" id="lobbyName" placeholder="Например: Встреча команды" maxlength="50">
+            </div>
+
+            <div class="input-group">
+                <label>Пароль (необязательно):</label>
+                <input type="password" id="lobbyPassword" placeholder="Оставьте пустым для открытого лобби" maxlength="20">
+                <small>Пароль защитит ваше лобби от посторонних</small>
+            </div>
+
+            <div class="form-buttons">
+                <button class="btn-secondary" onclick="backToMain()">Назад</button>
+                <button class="btn-primary" onclick="createLobby()">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФОРМА ПРИСОЕДИНЕНИЯ -->
+    <div id="joinScreen" class="form-screen">
+        <div class="form-container">
+            <h2>Присоединиться</h2>
+            <div id="joinError" class="error-message hidden"></div>
+            
+            <div class="input-group">
+                <label>Ваш ник:</label>
+                <input type="text" id="joinUsername" placeholder="Введите ваш ник" maxlength="20">
+            </div>
+
+            <div class="input-group">
+                <label>ID лобби:</label>
+                <input type="text" id="joinRoomId" placeholder="Например: 123" maxlength="3">
+            </div>
+
+            <div class="input-group">
+                <label>Пароль (если требуется):</label>
+                <input type="password" id="joinPassword" placeholder="Введите пароль лобби">
+            </div>
+
+            <div class="form-buttons">
+                <button class="btn-secondary" onclick="backToMain()">Назад</button>
+                <button class="btn-primary" onclick="joinLobby()">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН КОМНАТЫ -->
+    <div id="roomScreen" class="room-screen">
+        <!-- Хедер -->
+        <div class="room-header">
+            <div>
+                <div class="room-title" id="roomTitle">Лобби</div>
+                <div class="room-id-display">ID: <span id="displayRoomId">---</span></div>
+            </div>
+        </div>
+
+        <!-- Сетка видео -->
+        <div class="video-grid" id="videoGrid">
+            <!-- Видео участников будут добавляться динамически -->
+        </div>
+
+        <!-- Панель управления -->
+        <div class="control-bar">
+            <button class="control-btn" id="micBtn" onclick="toggleMic()">
+                🎤
+                <span class="control-label">Микрофон</span>
+            </button>
+            
+            <button class="control-btn" id="cameraBtn" onclick="toggleCamera()">
+                📹
+                <span class="control-label">Камера</span>
+            </button>
+            
+            <button class="control-btn mobile-only" id="switchCameraBtn" onclick="switchCamera()">
+                🔄
+                <span class="control-label">Сменить</span>
+            </button>
+            
+            <button class="control-btn" id="screenShareBtn" onclick="toggleScreenShare()">
+                🖥️
+                <span class="control-label">Демонстрация</span>
+            </button>
+            
+            <button class="control-btn leave" onclick="leaveLobby()">
+                Выйти
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase v9 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, remove, onDisconnect, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGE1Wx2UJKW9yW_smMaxLNPs6ifApOUKc",
+            authDomain: "pomorok-a6aad.firebaseapp.com",
+            projectId: "pomorok-a6aad",
+            databaseURL: "https://pomorok-a6aad-default-rtdb.firebaseio.com",
+            storageBucket: "pomorok-a6aad.firebasestorage.app",
+            messagingSenderId: "1079148253568",
+            appId: "1:1079148253568:web:629f5904f3f93912423165",
+            measurementId: "G-S2X6Y2W6VM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Глобальные переменные
+        let currentUser = null;
+        let currentRoomId = null;
+        let currentLobbyName = null;
+        let myUserId = null;
+        let peerConnections = {};
+        let localStream = null;
+        let screenStream = null; // Поток демонстрации экрана
+        
+        // Состояния устройств
+        let micEnabled = true;
+        let cameraEnabled = true;
+        let screenSharing = false;
+        let currentCamera = 'user'; // 'user' = фронтальная, 'environment' = задняя
+
+        // ICE серверы
+        const iceServers = {
+            iceServers: [
+                { urls: 'stun:openrelay.metered.ca:80' },
+                { urls: 'stun:stun.relay.metered.ca:80' },
+                {
+                    urls: 'turn:openrelay.metered.ca:80',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                }
+            ]
+        };
+
+        // Генерация ID комнаты
+        function generateRoomId() {
+            return Math.floor(100 + Math.random() * 900).toString();
+        }
+
+        // Навигация
+        window.showCreateForm = function() {
+            showScreen('createScreen');
+        };
+
+        window.showJoinForm = function() {
+            showScreen('joinScreen');
+        };
+
+        window.backToMain = function() {
+            showScreen('mainScreen');
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.main-screen, .form-screen, .room-screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Создание лобби
+        window.createLobby = async function() {
+            const username = document.getElementById('createUsername').value.trim();
+            const lobbyName = document.getElementById('lobbyName').value.trim();
+            const password = document.getElementById('lobbyPassword').value;
+
+            if (!username) {
+                showError('createError', 'Введите ваш ник');
+                return;
+            }
+
+            if (!lobbyName) {
+                showError('createError', 'Введите название лобби');
+                return;
+            }
+
+            currentUser = username;
+            currentLobbyName = lobbyName;
+            currentRoomId = generateRoomId();
+
+            // Проверяем уникальность ID
+            const roomRef = ref(database, `rooms/${currentRoomId}`);
+            const snapshot = await get(roomRef);
+            
+            if (snapshot.exists()) {
+                currentRoomId = generateRoomId();
+            }
+
+            // Создаём лобби с паролем
+            const lobbyRef = ref(database, `rooms/${currentRoomId}/info`);
+            await set(lobbyRef, {
+                name: lobbyName,
+                password: password || null,
+                createdAt: Date.now(),
+                createdBy: username
+            });
+
+            await joinRoom();
+        };
+
+        // Присоединение к лобби
+        window.joinLobby = async function() {
+            const username = document.getElementById('joinUsername').value.trim();
+            const roomId = document.getElementById('joinRoomId').value.trim();
+            const password = document.getElementById('joinPassword').value;
+
+            if (!username) {
+                showError('joinError', 'Введите ваш ник');
+                return;
+            }
+
+            if (!/^\d{3}$/.test(roomId)) {
+                showError('joinError', 'ID лобби должен состоять из 3 цифр');
+                return;
+            }
+
+            // Проверяем существование лобби
+            const roomRef = ref(database, `rooms/${roomId}`);
+            const snapshot = await get(roomRef);
+            
+            if (!snapshot.exists()) {
+                showError('joinError', 'Лобби не найдено');
+                return;
+            }
+
+            const roomData = snapshot.val();
+            
+            // Проверяем пароль
+            if (roomData.info && roomData.info.password) {
+                if (password !== roomData.info.password) {
+                    showError('joinError', 'Неверный пароль');
+                    return;
+                }
+            }
+
+            currentUser = username;
+            currentRoomId = roomId;
+            currentLobbyName = roomData.info?.name || 'Лобби';
+
+            await joinRoom();
+        };
+
+        // Подключение к комнате
+        async function joinRoom() {
+            try {
+                console.log('🎬 Запрос медиа устройств...');
+                
+                // Запрос камеры и микрофона
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 },
+                        facingMode: currentCamera
+                    }
+                });
+
+                console.log('✅ Медиа получено!');
+
+                // Генерируем ID пользователя
+                myUserId = push(ref(database, `rooms/${currentRoomId}/users`)).key;
+
+                // Добавляем в комнату
+                const userRef = ref(database, `rooms/${currentRoomId}/users/${myUserId}`);
+                await set(userRef, {
+                    username: currentUser,
+                    joinedAt: Date.now(),
+                    micEnabled: micEnabled,
+                    cameraEnabled: cameraEnabled,
+                    screenSharing: screenSharing
+                });
+
+                onDisconnect(userRef).remove();
+
+                // Показываем комнату
+                document.getElementById('roomTitle').textContent = currentLobbyName;
+                document.getElementById('displayRoomId').textContent = currentRoomId;
+                showScreen('roomScreen');
+
+                // Добавляем своё видео
+                addLocalVideo();
+
+                // Слушаем изменения пользователей
+                const usersRef = ref(database, `rooms/${currentRoomId}/users`);
+                onValue(usersRef, (snapshot) => {
+                    handleUsers(snapshot.val());
+                });
+
+                // Слушаем сигналы WebRTC
+                listenForSignals();
+
+            } catch (error) {
+                console.error('❌ Ошибка:', error);
+                let errorMsg = 'Ошибка подключения: ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg = 'Необходим доступ к камере и микрофону. Разрешите доступ в настройках браузера.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg = 'Камера или микрофон не найдены.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                alert(errorMsg);
+                backToMain();
+            }
+        }
+
+        // Добавление локального видео
+        function addLocalVideo() {
+            const videoGrid = document.getElementById('videoGrid');
+            
+            const container = document.createElement('div');
+            container.className = 'video-container';
+            container.id = 'local-video';
+            
+            const video = document.createElement('video');
+            video.srcObject = localStream;
+            video.autoplay = true;
+            video.muted = true; // Своё видео без звука
+            video.playsInline = true;
+            
+            const nameTag = document.createElement('div');
+            nameTag.className = 'video-name';
+            nameTag.textContent = currentUser + ' (Вы)';
+            
+            const status = document.createElement('div');
+            status.className = 'video-status';
+            status.id = 'local-status';
+            
+            container.appendChild(video);
+            container.appendChild(nameTag);
+            container.appendChild(status);
+            videoGrid.appendChild(container);
+            
+            updateLocalStatus();
+        }
+
+        // Обновление статуса своего видео
+        function updateLocalStatus() {
+            const status = document.getElementById('local-status');
+            if (!status) return;
+            
+            status.innerHTML = '';
+            
+            if (!micEnabled) {
+                const micIcon = document.createElement('div');
+                micIcon.className = 'status-icon muted';
+                micIcon.textContent = '🎤';
+                status.appendChild(micIcon);
+            }
+            
+            if (!cameraEnabled) {
+                const camIcon = document.createElement('div');
+                camIcon.className = 'status-icon muted';
+                camIcon.textContent = '📹';
+                status.appendChild(camIcon);
+            }
+        }
+
+        // Управление пользователями
+        function handleUsers(users) {
+            if (!users) return;
+
+            const videoGrid = document.getElementById('videoGrid');
+            const existingVideos = new Set();
+
+            Object.entries(users).forEach(([userId, userData]) => {
+                if (userId === myUserId) return; // Свой не добавляем
+
+                existingVideos.add(userId);
+
+                if (!peerConnections[userId]) {
+                    createPeerConnection(userId, userData);
+                } else {
+                    // Обновляем статусы существующих пользователей
+                    updateRemoteUserStatus(userId, userData);
+                }
+            });
+
+            // Удаляем отключившихся
+            Object.keys(peerConnections).forEach(userId => {
+                if (!users[userId]) {
+                    const videoElement = document.getElementById(`video-${userId}`);
+                    if (videoElement) videoElement.remove();
+                    
+                    if (peerConnections[userId]) {
+                        peerConnections[userId].close();
+                        delete peerConnections[userId];
+                    }
+                }
+            });
+        }
+
+        // Создание WebRTC соединения
+        async function createPeerConnection(userId, userData) {
+            const pc = new RTCPeerConnection(iceServers);
+            peerConnections[userId] = pc;
+
+            // Добавляем локальный поток
+            localStream.getTracks().forEach(track => {
+                pc.addTrack(track, localStream);
+            });
+
+            // Получаем удалённый поток
+            pc.ontrack = (event) => {
+                addRemoteVideo(userId, userData, event.streams[0]);
+            };
+
+            // ICE кандидаты
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const candidateRef = ref(database, `rooms/${currentRoomId}/signals/${userId}/${myUserId}/candidates`);
+                    push(candidateRef, event.candidate.toJSON());
+                }
+            };
+
+            // Создаём offer если наш ID меньше
+            if (myUserId < userId) {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                
+                const offerRef = ref(database, `rooms/${currentRoomId}/signals/${userId}/${myUserId}/offer`);
+                await set(offerRef, {
+                    type: offer.type,
+                    sdp: offer.sdp
+                });
+            }
+        }
+
+        // Добавление удалённого видео
+        function addRemoteVideo(userId, userData, stream) {
+            let container = document.getElementById(`video-${userId}`);
+            
+            if (!container) {
+                const videoGrid = document.getElementById('videoGrid');
+                
+                container = document.createElement('div');
+                container.className = 'video-container';
+                container.id = `video-${userId}`;
+                
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.autoplay = true;
+                video.playsInline = true;
+                
+                const nameTag = document.createElement('div');
+                nameTag.className = 'video-name';
+                nameTag.textContent = userData.username;
+                
+                const status = document.createElement('div');
+                status.className = 'video-status';
+                status.id = `status-${userId}`;
+                
+                container.appendChild(video);
+                container.appendChild(nameTag);
+                container.appendChild(status);
+                videoGrid.appendChild(container);
+            }
+            
+            // Обновляем статусы
+            updateRemoteUserStatus(userId, userData);
+        }
+
+        // Обновление статуса удалённого пользователя
+        function updateRemoteUserStatus(userId, userData) {
+            const status = document.getElementById(`status-${userId}`);
+            if (!status) return;
+            
+            status.innerHTML = '';
+            
+            // Иконка выключенного микрофона
+            if (!userData.micEnabled) {
+                const micIcon = document.createElement('div');
+                micIcon.className = 'status-icon muted';
+                micIcon.textContent = '🎤';
+                status.appendChild(micIcon);
+            }
+            
+            // Иконка выключенной камеры
+            if (!userData.cameraEnabled) {
+                const camIcon = document.createElement('div');
+                camIcon.className = 'status-icon muted';
+                camIcon.textContent = '📹';
+                status.appendChild(camIcon);
+            }
+            
+            // Иконка демонстрации экрана
+            if (userData.screenSharing) {
+                const screenIcon = document.createElement('div');
+                screenIcon.className = 'status-icon';
+                screenIcon.style.background = '#2196F3';
+                screenIcon.textContent = '🖥️';
+                status.appendChild(screenIcon);
+            }
+        }
+
+        // Слушаем сигналы WebRTC
+        function listenForSignals() {
+            const mySignalsRef = ref(database, `rooms/${currentRoomId}/signals/${myUserId}`);
+            
+            onValue(mySignalsRef, async (snapshot) => {
+                const signals = snapshot.val();
+                if (!signals) return;
+
+                for (const [fromUserId, signalData] of Object.entries(signals)) {
+                    if (!peerConnections[fromUserId]) continue;
+
+                    const pc = peerConnections[fromUserId];
+
+                    if (signalData.offer && pc.signalingState === 'stable') {
+                        await pc.setRemoteDescription(new RTCSessionDescription(signalData.offer));
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        
+                        const answerRef = ref(database, `rooms/${currentRoomId}/signals/${fromUserId}/${myUserId}/answer`);
+                        await set(answerRef, {
+                            type: answer.type,
+                            sdp: answer.sdp
+                        });
+                    }
+
+                    if (signalData.answer && pc.signalingState === 'have-local-offer') {
+                        await pc.setRemoteDescription(new RTCSessionDescription(signalData.answer));
+                    }
+
+                    if (signalData.candidates) {
+                        Object.values(signalData.candidates).forEach(async (candidate) => {
+                            try {
+                                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                            } catch (e) {
+                                console.error('ICE error:', e);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // Универсальная функция обновления статуса пользователя
+        async function updateUserStatus() {
+            if (!myUserId || !currentRoomId) return;
+            
+            const userRef = ref(database, `rooms/${currentRoomId}/users/${myUserId}`);
+            await set(userRef, {
+                username: currentUser,
+                joinedAt: Date.now(),
+                micEnabled: micEnabled,
+                cameraEnabled: cameraEnabled,
+                screenSharing: screenSharing
+            });
+        }
+
+        // Управление микрофоном
+        window.toggleMic = async function() {
+            if (!localStream) return;
+            
+            micEnabled = !micEnabled;
+            const audioTrack = localStream.getAudioTracks()[0];
+            if (audioTrack) {
+                audioTrack.enabled = micEnabled;
+            }
+            
+            const btn = document.getElementById('micBtn');
+            btn.classList.toggle('disabled', !micEnabled);
+            
+            // Обновляем в Firebase
+            await updateUserStatus();
+            
+            updateLocalStatus();
+        };
+
+        // Управление камерой
+        window.toggleCamera = async function() {
+            if (!localStream) return;
+            
+            cameraEnabled = !cameraEnabled;
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = cameraEnabled;
+            }
+            
+            const btn = document.getElementById('cameraBtn');
+            btn.classList.toggle('disabled', !cameraEnabled);
+            
+            // Обновляем в Firebase
+            await updateUserStatus();
+            
+            updateLocalStatus();
+        };
+
+        // Смена камеры
+        window.switchCamera = async function() {
+            if (!localStream) return;
+            
+            try {
+                // Меняем камеру
+                currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+                
+                // Останавливаем текущий поток
+                localStream.getTracks().forEach(track => track.stop());
+                
+                // Запрашиваем новую камеру
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 },
+                        facingMode: currentCamera
+                    }
+                });
+                
+                // Обновляем локальное видео
+                const localVideo = document.querySelector('#local-video video');
+                if (localVideo) {
+                    localVideo.srcObject = localStream;
+                }
+                
+                // Обновляем все peer connections
+                Object.values(peerConnections).forEach(pc => {
+                    const senders = pc.getSenders();
+                    localStream.getTracks().forEach(track => {
+                        const sender = senders.find(s => s.track && s.track.kind === track.kind);
+                        if (sender) {
+                            sender.replaceTrack(track);
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Ошибка смены камеры:', error);
+                alert('Не удалось сменить камеру. Возможно, у вас только одна камера.');
+            }
+        };
+
+        // Демонстрация экрана
+        window.toggleScreenShare = async function() {
+            try {
+                if (!screenSharing) {
+                    // Начинаем демонстрацию
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            cursor: 'always',
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        },
+                        audio: false
+                    });
+
+                    // Обработка остановки демонстрации через браузерную кнопку
+                    screenStream.getVideoTracks()[0].onended = () => {
+                        stopScreenShare();
+                    };
+
+                    // Заменяем видеотрек на всех соединениях
+                    const screenTrack = screenStream.getVideoTracks()[0];
+                    Object.values(peerConnections).forEach(pc => {
+                        const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                        if (sender) {
+                            sender.replaceTrack(screenTrack);
+                        }
+                    });
+
+                    // Обновляем локальное видео
+                    const localVideo = document.querySelector('#local-video video');
+                    if (localVideo) {
+                        localVideo.srcObject = screenStream;
+                    }
+
+                    screenSharing = true;
+                    document.getElementById('screenShareBtn').classList.add('sharing');
+                    
+                    // Обновляем статус в Firebase
+                    await updateUserStatus();
+
+                } else {
+                    // Останавливаем демонстрацию
+                    stopScreenShare();
+                }
+            } catch (error) {
+                console.error('Ошибка демонстрации экрана:', error);
+                if (error.name === 'NotAllowedError') {
+                    alert('Вы отклонили демонстрацию экрана.');
+                }
+            }
+        };
+
+        // Остановка демонстрации экрана
+        async function stopScreenShare() {
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+
+            // Возвращаем камеру
+            const cameraTrack = localStream.getVideoTracks()[0];
+            if (cameraTrack) {
+                Object.values(peerConnections).forEach(pc => {
+                    const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) {
+                        sender.replaceTrack(cameraTrack);
+                    }
+                });
+
+                // Обновляем локальное видео
+                const localVideo = document.querySelector('#local-video video');
+                if (localVideo) {
+                    localVideo.srcObject = localStream;
+                }
+            }
+
+            screenSharing = false;
+            document.getElementById('screenShareBtn').classList.remove('sharing');
+            
+            // Обновляем статус в Firebase
+            await updateUserStatus();
+        }
+
+        // Выход из лобби
+        window.leaveLobby = async function() {
+            // Останавливаем демонстрацию экрана если активна
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            Object.values(peerConnections).forEach(pc => pc.close());
+            peerConnections = {};
+
+            if (myUserId && currentRoomId) {
+                const userRef = ref(database, `rooms/${currentRoomId}/users/${myUserId}`);
+                const signalsRef = ref(database, `rooms/${currentRoomId}/signals/${myUserId}`);
+                await remove(userRef);
+                await remove(signalsRef);
+            }
+
+            document.getElementById('videoGrid').innerHTML = '';
+            screenSharing = false;
+            currentRoomId = null;
+            myUserId = null;
+            backToMain();
+        };
+
+        // Показ ошибок
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+            setTimeout(() => errorEl.classList.add('hidden'), 5000);
+        }
+
+        // Очистка при закрытии
+        window.addEventListener('beforeunload', () => {
+            if (currentRoomId && myUserId) {
+                const userRef = ref(database, `rooms/${currentRoomId}/users/${myUserId}`);
+                remove(userRef);
+            }
+        });
+    </script>
+</body>
+</html>
